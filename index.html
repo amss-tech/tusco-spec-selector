@@ -176,8 +176,9 @@ body{min-height:100vh}
   .cat-count{display:none}
   .bom-table th{background:#f0f0f0;color:#555}
   .bom-table td{border-color:#eee;color:#000}
-  .td-pn{color:#555}
-  .td-note{color:#666}
+  .td-pn{color:#444}
+  .td-desc{color:#000;font-weight:600}
+  .td-note{color:#444}
   .td-qty{color:#000}
   .src-tag{background:#eee;color:#333;border-color:#ccc}
   .summary-strip{border-color:#ccc}
@@ -739,7 +740,7 @@ function showELH(tusco){
 
 function goToDoors(){
   hide('view-scope');show('view-doors');setStep(4);
-  $('view-doors').scrollIntoView({behavior:'smooth',block:'start'});
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 // STEP 4 — door logic
@@ -864,12 +865,12 @@ function generateAC(){
   var readerItems=[];
   var stdReaderQty=qSI+qSE+qID+qED; // 1 per opening
   if(stdReaderQty>0){
-    readerItems.push({pn:'HID 40NKS-00-000000',desc:'HID Standard Card Reader',note:'1 per opening — all single and double doors',src:'HID',qty:stdReaderQty});
+    readerItems.push({pn:'HID 40NKS-00-000000',desc:'HID Standard Card Reader',note:'1 per opening — all single and double doors',src:'ADI',qty:stdReaderQty});
   }
   if(qGate>0){
     var gRdr=(gateReader==='lr'||gateReader==='')? 'HID MaxiProx 5375':'HID 40NKS-00-000000';
     var gRdrDesc=gateReader==='keypad'?'HID Card Reader with Keypad':gateReader==='lr'?'HID MaxiProx 5375 Long Range Reader':'HID Standard Card Reader';
-    readerItems.push({pn:gRdr,desc:gRdrDesc,note:'Vehicle gate reader — 1 per gate',src:'HID',qty:qGate});
+    readerItems.push({pn:gRdr,desc:gRdrDesc,note:'Vehicle gate reader — 1 per gate',src:'ADI',qty:qGate});
     if(hasPed){
       var pedDesc=(pedType==='double'?'Double':'Single')+' vehicle pedestal';
       readerItems.push({pn:'—',desc:pedDesc,note:'Reader pedestal for vehicle gate',src:'ADI',qty:qGate});
