@@ -155,6 +155,32 @@ body{min-height:100vh}
 .notes-box strong{color:var(--text2);font-weight:500}
 
 /* RESET */
+
+/* PANEL CONFIGURATOR */
+.he-block{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px}
+.he-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.he-badge{width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.he-title{font-size:14px;font-weight:600;color:var(--text);flex:1}
+.he-doors-badge{font-size:12px;font-weight:600;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(0,194,168,.25);padding:3px 10px;border-radius:20px}
+.panel-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-bottom:8px}
+.panel-row-label{font-size:12px;color:var(--text3);font-weight:500;white-space:nowrap}
+.panel-sel{height:34px;padding:0 10px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%}
+.panel-sel:focus{outline:none;border-color:var(--blue)}
+.panel-sel option{background:var(--navy2)}
+.panel-sel:disabled{opacity:.4;cursor:not-allowed}
+.coverage-bar{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius);font-size:12px;font-weight:500;margin-top:6px}
+.coverage-ok{background:var(--teal-dim);border:1px solid rgba(0,194,168,.3);color:var(--teal)}
+.coverage-warn{background:var(--red-dim);border:1px solid rgba(232,69,69,.3);color:var(--red)}
+.coverage-partial{background:var(--amber-dim);border:1px solid rgba(245,166,35,.3);color:var(--amber)}
+.managed-toggle{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.managed-toggle label{font-size:12px;color:var(--text3);font-weight:500}
+.he-name-input{height:30px;padding:0 8px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;flex:1}
+.he-name-input:focus{outline:none;border-color:var(--blue)}
+.he-door-input{width:70px;height:30px;padding:0 8px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;text-align:center}
+.he-door-input:focus{outline:none;border-color:var(--blue)}
+.add-he-btn{width:100%;background:none;border:1px dashed var(--border2);border-radius:var(--radius);padding:8px;font-size:12px;color:var(--text3);cursor:pointer;margin-top:4px;font-family:'DM Sans',sans-serif;transition:all .15s}
+.add-he-btn:hover{border-color:var(--blue);color:var(--blue-lt);background:var(--blue-dim)}
+
 .reset-btn{background:none;border:1px solid var(--border2);border-radius:var(--radius);padding:8px 18px;font-size:12px;color:var(--text3);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;margin-top:1.5rem}
 .reset-btn:hover{color:var(--text2);border-color:var(--border)}
 
@@ -400,6 +426,25 @@ body{min-height:100vh}
         <span id="elh-note-text"></span>
       </div>
     </div>
+  </div>
+
+
+  <div class="card" id="panel-config-card">
+    <div class="card-title">Head-end / panel configuration</div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Enter the number of head-end locations (IDF closets, security rooms, etc.) — the tool will ask how many doors go to each one and help you select the right panel setup.</p>
+    <div class="fg2" style="margin-bottom:14px">
+      <div class="field">
+        <label>How many head-end locations?</label>
+        <input type="number" id="he-count" min="1" max="20" value="1" onchange="buildHeadEnds()"/>
+      </div>
+      <div style="display:flex;align-items:flex-end;padding-bottom:2px">
+        <button class="gen-btn" style="padding:8px 20px;font-size:13px" onclick="buildHeadEnds()">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          Set up closets
+        </button>
+      </div>
+    </div>
+    <div id="he-blocks"></div>
   </div>
 
   <div class="gen-wrap">
@@ -853,12 +898,13 @@ function generateAC(){
 
   // ── PANELS ────────────────────────────────────────────────────────────────
   if(totalReaderDoors>0){
-    var panelItems=[
-      {pn:mfrLabel,desc:mfrLabel+' Access Control Panel',note:panelQty+' × 4-door panel for '+totalReaderDoors+' reader door'+(totalReaderDoors>1?'s':''),src:isDealer()?'3rd Party':'ADI',qty:panelQty},
-      {pn:'—',desc:'Controller enclosure with backplate',src:'ADI',qty:panelQty},
-      {pn:'—',desc:'12VDC 4A power supply for panels',src:'ADI',qty:Math.ceil(panelQty/2)},
-    ];
-    cats.push({label:'Panels & controllers',items:panelItems});
+    var mfrKey=getMfr();
+    var panelItems=buildPanelBOM(mfrKey);
+    if(panelItems.length){
+      cats.push({label:'Panels & controllers',items:panelItems});
+      var heSummary=getHESummaryNote();
+      if(heSummary) notes.push('<strong>Head-end summary:</strong> '+heSummary);
+    }
   }
 
   // ── READERS ───────────────────────────────────────────────────────────────
@@ -1063,6 +1109,196 @@ function generateAC(){
   out.innerHTML=html;
   out.classList.remove('hidden');
   out.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// HEAD-END / PANEL CONFIGURATOR
+// ═══════════════════════════════════════════════════════════════════
+
+var HE_DATA = []; // [{name, doors, managed, panels:[{size}]}]
+
+var CCURE_PANELS = {
+  unmanaged: {
+    4:  { ps:'FPO75-B100C4D8E2S',    ctrl:[{pn:'GSTAR004-MB',qty:1},{pn:'RM-4',qty:2}],            label:'4-door (Unmanaged)' },
+    8:  { ps:'FPO150-B100C8D8E4S',   ctrl:[{pn:'GSTAR-GCM',qty:1},{pn:'GSTAR-ACM',qty:1}],         label:'8-door (Unmanaged)' },
+    16: { ps:'FPO150/250-2C82D8E6S1',ctrl:[{pn:'GSTAR-GCM',qty:1},{pn:'GSTAR-ACM',qty:2}],         label:'16-door (Unmanaged)' }
+  },
+  managed: {
+    4:  null, // not available
+    8:  { ps:'FPO150-B100D8M8NLCE4S',    ctrl:[{pn:'GSTAR-GCM',qty:1},{pn:'GSTAR-ACM',qty:1}],     label:'8-door (Managed)' },
+    16: { ps:'FPO150/250-2D82M8NLCE8S',  ctrl:[{pn:'GSTAR-GCM',qty:1},{pn:'GSTAR-ACM',qty:2}],     label:'16-door (Managed)' }
+  }
+};
+
+function buildHeadEnds() {
+  var count = parseInt($('he-count').value) || 1;
+  var container = $('he-blocks');
+  container.innerHTML = '';
+  HE_DATA = [];
+
+  for (var i = 0; i < count; i++) {
+    HE_DATA.push({ name: 'Closet ' + (i+1), doors: 0, managed: false, panels: ['none','none','none'] });
+    container.appendChild(makeHEBlock(i));
+  }
+}
+
+function makeHEBlock(idx) {
+  var div = document.createElement('div');
+  div.className = 'he-block';
+  div.id = 'he-' + idx;
+  div.innerHTML = heBlockHTML(idx);
+  return div;
+}
+
+function heBlockHTML(idx) {
+  var d = HE_DATA[idx];
+  var mgd = d.managed;
+  var doors = d.doors || 0;
+
+  // Panel dropdowns
+  var panelRows = '';
+  var remaining = doors;
+  var covered = 0;
+  for (var p = 0; p < 3; p++) {
+    var show = (p === 0) || (p === 1 && covered < doors && doors > 0) || (p === 2 && covered < doors && doors > 0);
+    if (p > 0 && covered >= doors && doors > 0) break;
+    panelRows += makePanelRow(idx, p, mgd, doors, d.panels[p]);
+    var sz = parseInt(d.panels[p]) || 0;
+    covered += sz;
+  }
+
+  // Coverage status
+  var covHTML = '';
+  var totalCap = d.panels.reduce(function(a,v){ return a + (parseInt(v)||0); }, 0);
+  if (doors > 0) {
+    if (totalCap === 0) {
+      covHTML = '';
+    } else if (totalCap < doors) {
+      var needed = doors - totalCap;
+      covHTML = '<div class="coverage-bar coverage-warn">⚠ ' + totalCap + ' of ' + doors + ' doors covered — ' + needed + ' door' + (needed > 1 ? 's' : '') + ' unaccounted for. Add another panel.</div>';
+    } else if (totalCap > doors) {
+      var spare = totalCap - doors;
+      covHTML = '<div class="coverage-bar coverage-partial">✓ All ' + doors + ' doors covered — ' + spare + ' spare port' + (spare > 1 ? 's' : '') + ' available for future expansion.</div>';
+    } else {
+      covHTML = '<div class="coverage-bar coverage-ok">✓ All ' + doors + ' doors covered perfectly.</div>';
+    }
+  }
+
+  return '<div class="he-header">'
+    + '<div class="he-badge">' + (idx+1) + '</div>'
+    + '<input class="he-name-input" type="text" value="' + d.name + '" placeholder="e.g. IDF-1 / Main Security Room" onchange="HE_DATA['+idx+'].name=this.value" />'
+    + '<input class="he-door-input" type="number" min="0" value="' + (doors||'') + '" placeholder="Doors" onchange="HE_DATA['+idx+'].doors=parseInt(this.value)||0;refreshHE('+idx+')" />'
+    + '<span class="he-doors-badge" id="he-badge-'+idx+'">' + (doors > 0 ? doors + ' doors' : '—') + '</span>'
+    + '</div>'
+    + '<div class="managed-toggle">'
+    + '<label>Power management:</label>'
+    + '<div class="pill-group" id="pg-mgd-'+idx+'">'
+    + '<button class="pill' + (!mgd?' active-yes':'') + '" data-val="no" onclick="setManaged('+idx+',false,this)">Unmanaged</button>'
+    + '<button class="pill' + (mgd?' active-yes':'') + '" data-val="yes" onclick="setManaged('+idx+',true,this)">Managed</button>'
+    + '</div></div>'
+    + '<div id="he-panels-'+idx+'">'
+    + panelRows
+    + '</div>'
+    + covHTML;
+}
+
+function makePanelRow(idx, panelNum, managed, totalDoors, selectedVal) {
+  var label = ['Panel 1', 'Panel 2', 'Panel 3'][panelNum];
+  var opts = '<option value="none">— select panel —</option>';
+
+  var sizes = [4, 8, 16];
+  sizes.forEach(function(sz) {
+    var tier = managed ? CCURE_PANELS.managed : CCURE_PANELS.unmanaged;
+    var cfg = tier[sz];
+    if (!cfg) {
+      // 4-door not available in managed
+      opts += '<option value="' + sz + '" disabled style="color:#666">4-door panel — not available (managed)</option>';
+    } else {
+      var sel = (String(selectedVal) === String(sz)) ? ' selected' : '';
+      opts += '<option value="' + sz + '"' + sel + '>' + cfg.label + ' — ' + cfg.ps + '</option>';
+    }
+  });
+
+  return '<div class="panel-row" style="margin-bottom:8px">'
+    + '<span class="panel-row-label">' + label + '</span>'
+    + '<select class="panel-sel" onchange="HE_DATA['+idx+'].panels['+panelNum+']=this.value;refreshHE('+idx+')">' + opts + '</select>'
+    + '</div>';
+}
+
+function setManaged(idx, managed, btn) {
+  HE_DATA[idx].managed = managed;
+  // Reset panel selections when toggling managed/unmanaged
+  HE_DATA[idx].panels = ['none','none','none'];
+  var grp = $('pg-mgd-' + idx);
+  grp.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active-yes','active-no','active'); });
+  btn.classList.add('active-yes');
+  refreshHE(idx);
+}
+
+function refreshHE(idx) {
+  var block = $('he-' + idx);
+  if (block) block.innerHTML = heBlockHTML(idx);
+  // Update badge
+  var doors = HE_DATA[idx].doors;
+  var badge = $('he-badge-' + idx);
+  if (badge) badge.textContent = doors > 0 ? doors + ' doors' : '—';
+}
+
+// ── Build panel BOM from HE_DATA ──────────────────────────────────
+function buildPanelBOM(mfrKey) {
+  var items = [];
+  if (mfrKey !== 'ccure') {
+    // Placeholder for other manufacturers
+    items.push({ pn: '—', desc: 'Access control panel — see manufacturer spec', note: 'Panel configuration for ' + getMfrLabel() + ' — specify per head-end', src: isDealer() ? '3rd Party' : 'ADI', qty: 1 });
+    return items;
+  }
+
+  HE_DATA.forEach(function(he) {
+    if (!he.doors || he.doors === 0) return;
+    var mgd = he.managed;
+    var tier = mgd ? CCURE_PANELS.managed : CCURE_PANELS.unmanaged;
+    var heName = he.name || ('Head-end ' + (HE_DATA.indexOf(he)+1));
+
+    he.panels.forEach(function(sz, pi) {
+      if (!sz || sz === 'none') return;
+      var size = parseInt(sz);
+      var cfg = tier[size];
+      if (!cfg) return;
+
+      // Power supply enclosure
+      items.push({
+        pn: cfg.ps,
+        desc: 'LifeSafety Power ' + cfg.ps + ' — ' + size + '-door ' + (mgd ? 'Managed' : 'Unmanaged') + ' Enclosure',
+        note: heName + ' · Panel ' + (pi+1),
+        src: 'ADI',
+        qty: 1
+      });
+
+      // Controllers
+      cfg.ctrl.forEach(function(ctrl) {
+        items.push({
+          pn: ctrl.pn,
+          desc: 'Software House ' + ctrl.pn,
+          note: heName + ' · Panel ' + (pi+1),
+          src: 'ADI',
+          qty: ctrl.qty
+        });
+      });
+    });
+  });
+
+  return items;
+}
+
+function getHESummaryNote() {
+  if (!HE_DATA || HE_DATA.length === 0) return '';
+  var parts = HE_DATA.filter(function(h){ return h.doors > 0; }).map(function(h) {
+    var cap = h.panels.reduce(function(a,v){ return a+(parseInt(v)||0); }, 0);
+    var status = cap >= h.doors ? '✓' : '⚠';
+    return status + ' ' + h.name + ': ' + h.doors + ' doors / ' + cap + ' port capacity (' + (h.managed ? 'Managed' : 'Unmanaged') + ')';
+  });
+  return parts.join(' &nbsp;|&nbsp; ');
 }
 
 function resetTool(){
