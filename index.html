@@ -475,6 +475,216 @@ body{min-height:100vh}
   </div>
 </div>
 
+<!-- STEP 4: DOOR SCHEDULE -->
+<div id="view-doors" class="hidden">
+
+  <div class="card">
+    <div class="card-title">Total doors receiving a card reader</div>
+    <div class="fg2 mb0">
+      <div class="field">
+        <label>How many doors will receive a card reader?</label>
+        <input type="number" id="total-readers" min="0" value="0" onchange="onReaderCountChange()"/>
+      </div>
+    </div>
+    <div id="reader-zero-note" class="hidden mt8">
+      <div class="alert alert-info mb0">
+        <span class="alert-icon">ℹ️</span>
+        <span>0 readers entered — skipping to door contact and gate questions.</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="reader-door-section">
+    <div class="card">
+      <div class="card-title">Reader door types</div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Enter quantity for each door type. Sub-questions appear for any type with a quantity greater than 0.</p>
+
+      <!-- SINGLE INTERIOR -->
+      <div class="door-type-block" id="dtb-si">
+        <div class="door-type-header" id="dth-si">
+          <div><div class="door-type-label">Single Interior Wooden Door</div><div class="door-type-sub">Standard interior hollow-core or solid-core single door</div></div>
+          <input type="number" class="door-qty-input" id="qty-si" min="0" value="0" onchange="onDoorQty('si')"/>
+        </div>
+        <div class="door-sub-q hidden" id="sub-si">
+          <div class="field">
+            <div class="sub-label">Lock type for single interior doors</div>
+            <select id="lock-si" onchange="onLockChange('si')">
+              <option value="strike">Electric Strike — HES-4500-12/24-630</option>
+              <option value="rim">RIM Strike — HES-9400-12/24-630</option>
+              <option value="mag">Maglock — AC-600LB</option>
+            </select>
+          </div>
+          <div id="mag-warn-si" class="hidden alert alert-info mb0">
+            <span class="alert-icon">🚪</span>
+            <span>Maglock selected — an <strong>Essex PEB-2S Emergency Exit Button</strong> will be added per door.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SINGLE EXTERIOR -->
+      <div class="door-type-block" id="dtb-se">
+        <div class="door-type-header" id="dth-se">
+          <div><div class="door-type-label">Single Exterior Door</div><div class="door-type-sub">Exterior-rated single door, weather exposure</div></div>
+          <input type="number" class="door-qty-input" id="qty-se" min="0" value="0" onchange="onDoorQty('se')"/>
+        </div>
+        <div class="door-sub-q hidden" id="sub-se">
+          <div class="field">
+            <div class="sub-label">Lock type for single exterior doors</div>
+            <select id="lock-se" onchange="onLockChange('se')">
+              <option value="strike">Electric Strike — HES-4500-12/24-630</option>
+              <option value="rim">RIM Strike — HES-9400-12/24-630</option>
+              <option value="mag">Maglock — AC-600LB</option>
+            </select>
+          </div>
+          <div id="mag-warn-se" class="hidden alert alert-info mb0">
+            <span class="alert-icon">🚪</span>
+            <span>Maglock selected — an <strong>Essex PEB-2S Emergency Exit Button</strong> will be added per door.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERIOR DOUBLE -->
+      <div class="door-type-block" id="dtb-id">
+        <div class="door-type-header" id="dth-id">
+          <div><div class="door-type-label">Interior Double Door</div><div class="door-type-sub">Two-leaf interior opening — 1 reader, shared cable run</div></div>
+          <input type="number" class="door-qty-input" id="qty-id" min="0" value="0" onchange="onDoorQty('id')"/>
+        </div>
+        <div class="door-sub-q hidden" id="sub-id">
+          <div class="field">
+            <div class="sub-label">Will both leaves require unlock on card read?</div>
+            <div class="pill-group" id="pg-id-both">
+              <button class="pill" onclick="setPill('pg-id-both','yes',this)">Yes — both leaves active</button>
+              <button class="pill" onclick="setPill('pg-id-both','no',this)">No — one active leaf</button>
+            </div>
+          </div>
+          <div class="field">
+            <div class="sub-label">Lock type</div>
+            <select id="lock-id" onchange="onLockChange('id')">
+              <option value="strike">Electric Strike — HES-4500-12/24-630</option>
+              <option value="rim">RIM Strike — HES-9400-12/24-630</option>
+              <option value="mag">Maglock — AC-600LB</option>
+            </select>
+          </div>
+          <div id="mag-warn-id" class="hidden alert alert-info mb0">
+            <span class="alert-icon">🚪</span>
+            <span>Maglock selected — an <strong>Essex PEB-2S Emergency Exit Button</strong> will be added per opening.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXTERIOR DOUBLE -->
+      <div class="door-type-block" id="dtb-ed">
+        <div class="door-type-header" id="dth-ed">
+          <div><div class="door-type-label">Exterior Double Door</div><div class="door-type-sub">Two-leaf exterior opening — 1 reader, shared cable run</div></div>
+          <input type="number" class="door-qty-input" id="qty-ed" min="0" value="0" onchange="onDoorQty('ed')"/>
+        </div>
+        <div class="door-sub-q hidden" id="sub-ed">
+          <div class="field">
+            <div class="sub-label">Will both leaves require unlock on card read?</div>
+            <div class="pill-group" id="pg-ed-both">
+              <button class="pill" onclick="setPill('pg-ed-both','yes',this)">Yes — both leaves active</button>
+              <button class="pill" onclick="setPill('pg-ed-both','no',this)">No — one active leaf</button>
+            </div>
+          </div>
+          <div class="field">
+            <div class="sub-label">Lock type</div>
+            <select id="lock-ed" onchange="onLockChange('ed')">
+              <option value="strike">Electric Strike — HES-4500-12/24-630</option>
+              <option value="rim">RIM Strike — HES-9400-12/24-630</option>
+              <option value="mag">Maglock — AC-600LB</option>
+            </select>
+          </div>
+          <div id="mag-warn-ed" class="hidden alert alert-info mb0">
+            <span class="alert-icon">🚪</span>
+            <span>Maglock selected — an <strong>Essex PEB-2S Emergency Exit Button</strong> will be added per opening.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT ONLY DOORS -->
+  <div class="card">
+    <div class="card-title">Door contact only (no reader)</div>
+    <div class="door-type-block">
+      <div class="door-type-header">
+        <div><div class="door-type-label">Standard Door — Contact Only</div><div class="door-type-sub">No reader or lock — monitoring / alarm only</div></div>
+        <input type="number" class="door-qty-input" id="qty-dc" min="0" value="0"/>
+      </div>
+    </div>
+    <div class="door-type-block">
+      <div class="door-type-header">
+        <div><div class="door-type-label">Overhead Door (OHD) — Contact Only</div><div class="door-type-sub">Roll-up or sectional overhead door</div></div>
+        <input type="number" class="door-qty-input" id="qty-ohd" min="0" value="0"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- VEHICLE GATES -->
+  <div class="card">
+    <div class="card-title">Vehicle gates with card reader</div>
+    <div class="door-type-block" id="dtb-gate">
+      <div class="door-type-header" id="dth-gate">
+        <div><div class="door-type-label">Vehicle Gate</div><div class="door-type-sub">OSP-rated direct burial cable — HID MaxiProx 5375 long range reader</div></div>
+        <input type="number" class="door-qty-input" id="qty-gate" min="0" value="0" onchange="onDoorQty('gate')"/>
+      </div>
+      <div class="door-sub-q hidden" id="sub-gate">
+        <div class="fg2">
+          <div class="field">
+            <div class="sub-label">Are we providing pedestals?</div>
+            <div class="pill-group" id="pg-ped">
+              <button class="pill" onclick="setPill('pg-ped','yes',this);showPedestalType(true)">Yes</button>
+              <button class="pill" onclick="setPill('pg-ped','no',this);showPedestalType(false)">No</button>
+            </div>
+          </div>
+          <div class="field" id="ped-type-field" style="display:none">
+            <div class="sub-label">Pedestal type</div>
+            <select id="ped-type">
+              <option value="single">Single vehicle pedestal</option>
+              <option value="double">Double vehicle pedestal</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg2">
+          <div class="field">
+            <div class="sub-label">Reader type</div>
+            <select id="gate-reader">
+              <option value="standard">Standard card reader — HID 40NKS-00-000000</option>
+              <option value="keypad">Card reader with keypad</option>
+              <option value="lr">Long range reader — HID MaxiProx 5375</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="sub-label">Are we providing intercoms?</div>
+            <div class="pill-group" id="pg-intercom">
+              <button class="pill" onclick="setPill('pg-intercom','yes',this);showIntercomType(true)">Yes</button>
+              <button class="pill" onclick="setPill('pg-intercom','no',this);showIntercomType(false)">No</button>
+            </div>
+          </div>
+        </div>
+        <div id="intercom-type-field" class="hidden">
+          <div class="field">
+            <div class="sub-label">Intercom type</div>
+            <select id="intercom-type">
+              <option value="audio">Audio only intercom</option>
+              <option value="video">Video intercom</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gen-wrap">
+    <button class="back-btn" onclick="backToScope()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+    <button class="gen-btn" onclick="goToHeadend()">
+      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      Continue to head-end setup
+    </button>
+    <span class="gen-hint">Configure panels based on your door counts</span>
+  </div>
+</div>
+
 <!-- OUTPUT -->
 <div id="output-area" class="hidden"></div>
 
