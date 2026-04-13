@@ -450,26 +450,101 @@ body{min-height:100vh}
 <div id="view-headend" class="hidden">
   <div class="card">
     <div class="card-title">Head-end / panel configuration</div>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Now that you have your door counts, set up your head-end locations. Enter how many IDF closets or security rooms this project has — then assign doors to each one and select the panel setup.</p>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Enter reader door count, contact-only doors, and select panels for each head-end location. Delete any closets you don't need, or add more below.</p>
     <div id="he-contact-summary" style="display:none;margin-bottom:14px">
       <div class="alert alert-info mb0" id="he-contact-alert">
         <span class="alert-icon">ℹ️</span>
         <span id="he-contact-text"></span>
       </div>
     </div>
-    <div class="fg2" style="margin-bottom:14px">
-      <div class="field">
-        <label>How many head-end locations?</label>
-        <input type="number" id="he-count" min="1" max="20" value="1" onchange="buildHeadEnds()"/>
+    <div id="he-i8-warning"></div>
+    <div id="he-closet-list">
+      <!-- Closet 1 -->
+      <div class="he-block" id="hec-0">
+        <div class="he-header">
+          <div class="he-badge">1</div>
+          <input class="he-name-input" type="text" placeholder="e.g. IDF-1 / Main Security Room" value="Closet 1" oninput="heChanged()"/>
+          <input class="he-door-input" type="number" min="0" placeholder="Reader doors" id="he-rdoors-0" oninput="heChanged()"/>
+          <span class="he-doors-badge" id="he-rbadge-0">—</span>
+          <button class="del-btn" onclick="deleteCloset(0)" title="Remove this closet">×</button>
+        </div>
+        <div class="he-contact-row" id="he-crow-0" style="display:none">
+          <span style="font-size:12px;color:var(--text3);font-weight:500;white-space:nowrap">Contact-only doors at this closet:</span>
+          <label style="font-size:11px;color:var(--text3)">Standard:</label>
+          <input type="number" min="0" value="0" id="he-cstd-0" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" oninput="heChanged()"/>
+          <label style="font-size:11px;color:var(--text3)">OHD:</label>
+          <input type="number" min="0" value="0" id="he-cohd-0" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" oninput="heChanged()"/>
+          <span id="he-ctotal-0" style="font-size:11px;font-weight:600;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(0,194,168,.25);padding:2px 8px;border-radius:10px"></span>
+          <span id="he-cstatus-0" style="font-size:11px;margin-left:auto"></span>
+        </div>
+        <div class="managed-toggle">
+          <label>Power management:</label>
+          <div class="pill-group">
+            <button class="pill active-yes" data-val="no" id="he-unmgd-0" onclick="setHEManaged(0,false,this)">Unmanaged</button>
+            <button class="pill" data-val="yes" id="he-mgd-0" onclick="setHEManaged(0,true,this)">Managed</button>
+          </div>
+        </div>
+        <div id="he-panels-0"></div>
+        <div id="he-coverage-0"></div>
       </div>
-      <div style="display:flex;align-items:flex-end;padding-bottom:2px">
-        <button class="gen-btn" style="padding:8px 20px;font-size:13px" onclick="buildHeadEnds()">
-          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-          Set up closets
-        </button>
+      <!-- Closet 2 -->
+      <div class="he-block" id="hec-1">
+        <div class="he-header">
+          <div class="he-badge">2</div>
+          <input class="he-name-input" type="text" placeholder="e.g. IDF-2" value="Closet 2" oninput="heChanged()"/>
+          <input class="he-door-input" type="number" min="0" placeholder="Reader doors" id="he-rdoors-1" oninput="heChanged()"/>
+          <span class="he-doors-badge" id="he-rbadge-1">—</span>
+          <button class="del-btn" onclick="deleteCloset(1)" title="Remove this closet">×</button>
+        </div>
+        <div class="he-contact-row" id="he-crow-1" style="display:none">
+          <span style="font-size:12px;color:var(--text3);font-weight:500;white-space:nowrap">Contact-only doors at this closet:</span>
+          <label style="font-size:11px;color:var(--text3)">Standard:</label>
+          <input type="number" min="0" value="0" id="he-cstd-1" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" oninput="heChanged()"/>
+          <label style="font-size:11px;color:var(--text3)">OHD:</label>
+          <input type="number" min="0" value="0" id="he-cohd-1" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" oninput="heChanged()"/>
+          <span id="he-ctotal-1" style="font-size:11px;font-weight:600;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(0,194,168,.25);padding:2px 8px;border-radius:10px"></span>
+          <span id="he-cstatus-1" style="font-size:11px;margin-left:auto"></span>
+        </div>
+        <div class="managed-toggle">
+          <label>Power management:</label>
+          <div class="pill-group">
+            <button class="pill active-yes" data-val="no" id="he-unmgd-1" onclick="setHEManaged(1,false,this)">Unmanaged</button>
+            <button class="pill" data-val="yes" id="he-mgd-1" onclick="setHEManaged(1,true,this)">Managed</button>
+          </div>
+        </div>
+        <div id="he-panels-1"></div>
+        <div id="he-coverage-1"></div>
+      </div>
+      <!-- Closet 3 -->
+      <div class="he-block" id="hec-2">
+        <div class="he-header">
+          <div class="he-badge">3</div>
+          <input class="he-name-input" type="text" placeholder="e.g. IDF-3" value="Closet 3" oninput="heChanged()"/>
+          <input class="he-door-input" type="number" min="0" placeholder="Reader doors" id="he-rdoors-2" oninput="heChanged()"/>
+          <span class="he-doors-badge" id="he-rbadge-2">—</span>
+          <button class="del-btn" onclick="deleteCloset(2)" title="Remove this closet">×</button>
+        </div>
+        <div class="he-contact-row" id="he-crow-2" style="display:none">
+          <span style="font-size:12px;color:var(--text3);font-weight:500;white-space:nowrap">Contact-only doors at this closet:</span>
+          <label style="font-size:11px;color:var(--text3)">Standard:</label>
+          <input type="number" min="0" value="0" id="he-cstd-2" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" oninput="heChanged()"/>
+          <label style="font-size:11px;color:var(--text3)">OHD:</label>
+          <input type="number" min="0" value="0" id="he-cohd-2" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" oninput="heChanged()"/>
+          <span id="he-ctotal-2" style="font-size:11px;font-weight:600;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(0,194,168,.25);padding:2px 8px;border-radius:10px"></span>
+          <span id="he-cstatus-2" style="font-size:11px;margin-left:auto"></span>
+        </div>
+        <div class="managed-toggle">
+          <label>Power management:</label>
+          <div class="pill-group">
+            <button class="pill active-yes" data-val="no" id="he-unmgd-2" onclick="setHEManaged(2,false,this)">Unmanaged</button>
+            <button class="pill" data-val="yes" id="he-mgd-2" onclick="setHEManaged(2,true,this)">Managed</button>
+          </div>
+        </div>
+        <div id="he-panels-2"></div>
+        <div id="he-coverage-2"></div>
       </div>
     </div>
-    <div id="he-blocks"></div>
+    <button class="add-row-btn" onclick="addCloset()" style="margin-top:8px">+ Add another closet</button>
   </div>
 
   <div class="gen-wrap">
@@ -815,16 +890,7 @@ function showELH(tusco){
 }
 
 
-function goToHeadend(){
-  hide('view-doors');
-  show('view-headend');
-  setStep(5);
-  window.scrollTo({top:0,behavior:'smooth'});
-  if($('he-blocks')&&$('he-blocks').innerHTML===''){
-    buildHeadEnds();
-  }
-  updateHeContactSummary();
-}
+// goToHeadend defined in HE engine block
 
 function updateHeContactSummary(){
   var mfrKey = getMfr();
@@ -969,20 +1035,26 @@ function generateAC(){
   if(totalReaderDoors>0){
     var mfrKey=getMfr();
     var panelItems=buildPanelBOM(mfrKey);
-    // I8 boards per head-end based on closet-level contact door counts
-    HE_DATA.forEach(function(he){
-      var closetCon = (he.contactDoors||0) + (he.ohdDoors||0);
-      if(closetCon > 0 && getPillVal('pg-i8') === 'no'){
-        var i8PerCloset = Math.ceil(closetCon / 8);
-        panelItems.push({
-          pn:'I8-Board',
-          desc:'Software House I8 Input Board',
-          note:(he.name||'Head-end')+' — '+i8PerCloset+' board'+(i8PerCloset>1?'s':'')+' for '+closetCon+' contact-only door'+(closetCon>1?'s':'')+'. Installs in 16-door enclosure only.',
-          src:'ADI',
-          qty:i8PerCloset
-        });
-      }
-    });
+    // I8 boards per head-end — read from DOM
+    if(getPillVal('pg-i8') === 'no'){
+      getActiveClosets().forEach(function(idx){
+        var cstd = parseInt(($('he-cstd-'+idx)||{}).value) || 0;
+        var cohd = parseInt(($('he-cohd-'+idx)||{}).value) || 0;
+        var closetCon = cstd + cohd;
+        if(closetCon > 0){
+          var i8PerCloset = Math.ceil(closetCon / 8);
+          var nameEl = $('hec-' + idx + ' .he-name-input');
+          var heName = (nameEl && nameEl.value) ? nameEl.value : ('Closet '+(idx+1));
+          panelItems.push({
+            pn:'I8-Board',
+            desc:'Software House I8 Input Board',
+            note:heName+' — '+i8PerCloset+' board'+(i8PerCloset>1?'s':'')+' for '+closetCon+' contact-only door'+(closetCon>1?'s':'')+'. Installs in 16-door enclosure only.',
+            src:'ADI',
+            qty:i8PerCloset
+          });
+        }
+      });
+    }
     if(panelItems.length){
       cats.push({label:'Panels & controllers',items:panelItems});
       var heSummary=getHESummaryNote();
@@ -1199,185 +1271,282 @@ function generateAC(){
 
 
 // ═══════════════════════════════════════════════════════════════════
-// HEAD-END / PANEL CONFIGURATOR
+// HEAD-END / PANEL CONFIGURATOR — DOM-BASED (no innerHTML rebuilds)
 // ═══════════════════════════════════════════════════════════════════
-
-var HE_DATA = []; // [{name, doors, managed, panels:[{size}]}]
 
 var CCURE_PANELS = {
   unmanaged: {
-    4:  { ps:'FPO75-B100C4D8E2S',    ctrl:[{pn:'GSTAR004-MB',qty:1},{pn:'RM-4',qty:2}],            label:'4-door (Unmanaged)' },
-    8:  { ps:'FPO150-B100C8D8E4S',   ctrl:[{pn:'GSTAR-GCM',qty:1},{pn:'GSTAR-ACM',qty:1}],         label:'8-door (Unmanaged)' },
-    16: { ps:'FPO150/250-2C82D8E6S1',ctrl:[{pn:'GSTAR-GCM',qty:1},{pn:'GSTAR-ACM',qty:2}],         label:'16-door (Unmanaged)' }
+    4:  { ps:'FPO75-B100C4D8E2S',       ctrl:[{pn:'GSTAR004-MB',qty:1},{pn:'RM-4',qty:2}],     label:'4-door (Unmanaged)' },
+    8:  { ps:'FPO150-B100C8D8E4S',      ctrl:[{pn:'GSTAR-GCM',qty:1},{pn:'GSTAR-ACM',qty:1}],  label:'8-door (Unmanaged)' },
+    16: { ps:'FPO150/250-2C82D8E6S1',   ctrl:[{pn:'GSTAR-GCM',qty:1},{pn:'GSTAR-ACM',qty:2}],  label:'16-door (Unmanaged)' }
   },
   managed: {
-    4:  null, // not available
-    8:  { ps:'FPO150-B100D8M8NLCE4S',    ctrl:[{pn:'GSTAR-GCM',qty:1},{pn:'GSTAR-ACM',qty:1}],     label:'8-door (Managed)' },
-    16: { ps:'FPO150/250-2D82M8NLCE8S',  ctrl:[{pn:'GSTAR-GCM',qty:1},{pn:'GSTAR-ACM',qty:2}],     label:'16-door (Managed)' }
+    4:  null,
+    8:  { ps:'FPO150-B100D8M8NLCE4S',   ctrl:[{pn:'GSTAR-GCM',qty:1},{pn:'GSTAR-ACM',qty:1}],  label:'8-door (Managed)' },
+    16: { ps:'FPO150/250-2D82M8NLCE8S', ctrl:[{pn:'GSTAR-GCM',qty:1},{pn:'GSTAR-ACM',qty:2}],  label:'16-door (Managed)' }
   }
 };
 
-function buildHeadEnds() {
-  var count = parseInt($('he-count').value) || 1;
-  var container = $('he-blocks');
-  container.innerHTML = '';
-  HE_DATA = [];
+// HE_MANAGED tracks managed state per closet index
+var HE_MANAGED = {0:false, 1:false, 2:false};
+// HE_PANELS tracks panel selections per closet: {0:['none','none','none'], ...}
+var HE_PANELS  = {0:['none','none','none'], 1:['none','none','none'], 2:['none','none','none']};
+// Next closet index counter for dynamically added closets
+var HE_NEXT_IDX = 3;
 
+function setHEManaged(idx, managed, btn){
+  HE_MANAGED[idx] = managed;
+  // Update pill styling
+  var unmgd = $('he-unmgd-' + idx);
+  var mgd   = $('he-mgd-' + idx);
+  if(unmgd && mgd){
+    unmgd.classList.remove('active-yes','active','active-no');
+    mgd.classList.remove('active-yes','active','active-no');
+    if(managed) mgd.classList.add('active-yes');
+    else unmgd.classList.add('active-yes');
+  }
+  // Reset panel selections when toggling
+  HE_PANELS[idx] = ['none','none','none'];
+  rebuildPanelSelects(idx);
+  updateCoverage(idx);
+  heChanged();
+}
+
+function goToHeadend(){
+  hide('view-doors');
+  show('view-headend');
+  setStep(5);
+  window.scrollTo({top:0,behavior:'smooth'});
+  // Auto-fill first closet reader doors from total-readers
   var totalRdr = ival('total-readers', 0);
-  for (var i = 0; i < count; i++) {
-    var autoDoors = (count === 1 && i === 0) ? totalRdr : 0;
-    HE_DATA.push({ name: 'Closet ' + (i+1), doors: autoDoors, managed: false, panels: ['none','none','none'], contactDoors: 0, ohdDoors: 0 });
-    container.appendChild(makeHEBlock(i));
+  var inp = $('he-rdoors-0');
+  if(inp && (!inp.value || inp.value === '0') && totalRdr > 0){
+    inp.value = totalRdr;
   }
+  heChanged();
+  updateHeContactSummary();
 }
 
-function makeHEBlock(idx) {
-  var div = document.createElement('div');
-  div.className = 'he-block';
-  div.id = 'he-' + idx;
-  div.innerHTML = heBlockHTML(idx);
-  return div;
+function heChanged(){
+  // Read all closet data from DOM and update derived UI — NO innerHTML rebuilds
+  getActiveClosets().forEach(function(idx){
+    // Update reader door badge
+    var rdoors = parseInt(($('he-rdoors-' + idx)||{}).value) || 0;
+    var badge = $('he-rbadge-' + idx);
+    if(badge) badge.textContent = rdoors > 0 ? rdoors + ' doors' : '\u2014';
+
+    // Show/hide contact row (CCURE only + has contact doors)
+    var crow = $('he-crow-' + idx);
+    var mfrKey = getMfr();
+    var qDC  = ival('qty-dc', 0);
+    var qOHD = ival('qty-ohd', 0);
+    if(crow) crow.style.display = (mfrKey === 'ccure' && (qDC+qOHD) > 0) ? 'flex' : 'none';
+
+    // Update contact total badge
+    var cstd = parseInt(($('he-cstd-' + idx)||{}).value) || 0;
+    var cohd = parseInt(($('he-cohd-' + idx)||{}).value) || 0;
+    var ctotal = cstd + cohd;
+    var ctBadge = $('he-ctotal-' + idx);
+    if(ctBadge) ctBadge.textContent = ctotal > 0 ? ctotal + ' contact' + (ctotal>1?'s':'') : '';
+
+    // Update coverage
+    updateCoverage(idx);
+  });
+
+  // Update project-level contact assignment status
+  updateAllContactStatus();
+  checkI8HeadendWarning();
+  updateHeContactSummary();
 }
 
-function heBlockHTML(idx) {
-  var d = HE_DATA[idx];
-  var mgd = d.managed;
-  var doors = d.doors || 0;
+function getActiveClosets(){
+  var list = $('he-closet-list');
+  if(!list) return [];
+  return Array.from(list.querySelectorAll('.he-block'))
+    .filter(function(el){ return el.style.display !== 'none'; })
+    .map(function(el){ return parseInt(el.id.replace('hec-','')); });
+}
 
-  // Panel dropdowns
-  var panelRows = '';
-  var remaining = doors;
-  var covered = 0;
-  for (var p = 0; p < 3; p++) {
-    var show = (p === 0) || (p === 1 && covered < doors && doors > 0) || (p === 2 && covered < doors && doors > 0);
-    if (p > 0 && covered >= doors && doors > 0) break;
-    panelRows += makePanelRow(idx, p, mgd, doors, d.panels[p]);
-    var sz = parseInt(d.panels[p]) || 0;
-    covered += sz;
+function rebuildPanelSelects(idx){
+  var container = $('he-panels-' + idx);
+  if(!container) return;
+  var managed = HE_MANAGED[idx] || false;
+  var panels = HE_PANELS[idx] || ['none','none','none'];
+  var rdoors = parseInt(($('he-rdoors-' + idx)||{}).value) || 0;
+  var tier = managed ? CCURE_PANELS.managed : CCURE_PANELS.unmanaged;
+
+  // Calculate covered so far
+  var covered = panels.reduce(function(a,v){ return a + (parseInt(v)||0); }, 0);
+  var html = '';
+  for(var p = 0; p < 3; p++){
+    var panelCap = parseInt(panels[p]) || 0;
+    var prevCovered = panels.slice(0,p).reduce(function(a,v){ return a+(parseInt(v)||0);},0);
+    // Show panel slot if: first slot, OR previous panels don't cover all doors yet
+    if(p > 0 && prevCovered >= rdoors && rdoors > 0) break;
+
+    html += '<div class="panel-row" style="margin-bottom:8px">';
+    html += '<span class="panel-row-label">Panel ' + (p+1) + '</span>';
+    html += '<select class="panel-sel" onchange="onPanelChange(' + idx + ',' + p + ',this.value)">';
+    html += '<option value="none">\u2014 select panel \u2014</option>';
+    [4,8,16].forEach(function(sz){
+      var cfg = tier[sz];
+      var sel = panels[p] == sz ? ' selected' : '';
+      if(!cfg){
+        html += '<option value="' + sz + '" disabled style="color:#555">4-door panel \u2014 not available in managed</option>';
+      } else {
+        html += '<option value="' + sz + '"' + sel + '>' + cfg.label + ' \u2014 ' + cfg.ps + '</option>';
+      }
+    });
+    html += '</select></div>';
+  }
+  container.innerHTML = html;
+}
+
+function onPanelChange(idx, panelNum, val){
+  if(!HE_PANELS[idx]) HE_PANELS[idx] = ['none','none','none'];
+  HE_PANELS[idx][panelNum] = val;
+  // Reset subsequent panels when earlier one changes
+  for(var i = panelNum+1; i < 3; i++) HE_PANELS[idx][i] = 'none';
+  rebuildPanelSelects(idx);
+  updateCoverage(idx);
+  checkI8HeadendWarning();
+}
+
+function updateCoverage(idx){
+  var container = $('he-coverage-' + idx);
+  if(!container) return;
+  var rdoors = parseInt(($('he-rdoors-' + idx)||{}).value) || 0;
+  var panels = HE_PANELS[idx] || ['none','none','none'];
+  var totalCap = panels.reduce(function(a,v){ return a+(parseInt(v)||0); }, 0);
+
+  if(rdoors === 0 || totalCap === 0){ container.innerHTML = ''; return; }
+
+  var msg = '';
+  if(totalCap < rdoors){
+    var needed = rdoors - totalCap;
+    msg = '<div class="coverage-bar coverage-warn">\u26a0 ' + totalCap + ' of ' + rdoors + ' doors covered \u2014 ' + needed + ' door' + (needed>1?'s':'') + ' unaccounted for. Add another panel.</div>';
+  } else if(totalCap > rdoors){
+    var spare = totalCap - rdoors;
+    msg = '<div class="coverage-bar coverage-partial">\u2713 All ' + rdoors + ' doors covered \u2014 ' + spare + ' spare port' + (spare>1?'s':'') + ' for expansion.</div>';
+  } else {
+    msg = '<div class="coverage-bar coverage-ok">\u2713 All ' + rdoors + ' doors covered perfectly.</div>';
   }
 
-  // Coverage status
-  var covHTML = '';
-  var totalCap = d.panels.reduce(function(a,v){ return a + (parseInt(v)||0); }, 0);
-  if (doors > 0) {
-    if (totalCap === 0) {
-      covHTML = '';
-    } else if (totalCap < doors) {
-      var needed = doors - totalCap;
-      covHTML = '<div class="coverage-bar coverage-warn">⚠ ' + totalCap + ' of ' + doors + ' doors covered — ' + needed + ' door' + (needed > 1 ? 's' : '') + ' unaccounted for. Add another panel.</div>';
-    } else if (totalCap > doors) {
-      var spare = totalCap - doors;
-      covHTML = '<div class="coverage-bar coverage-partial">✓ All ' + doors + ' doors covered — ' + spare + ' spare port' + (spare > 1 ? 's' : '') + ' available for future expansion.</div>';
-    } else {
-      covHTML = '<div class="coverage-bar coverage-ok">✓ All ' + doors + ' doors covered perfectly.</div>';
-    }
-  }
-  // I8 warning — per closet contact count
-  var i8Choice_cov = getPillVal('pg-i8');
-  var closetContacts = (d.contactDoors||0) + (d.ohdDoors||0);
-  var i8Needed_cov = Math.ceil(closetContacts / 8);
-  if(getMfr() === 'ccure' && i8Choice_cov === 'no' && closetContacts > 0) {
-    var has16 = d.panels.some(function(sz){ return parseInt(sz) === 16; });
-    var hasNon16 = d.panels.some(function(sz){ return sz && sz !== 'none' && parseInt(sz) !== 16; });
-    if(hasNon16 && !has16) {
-      covHTML += '<div class="alert alert-warn" style="margin-top:6px;margin-bottom:0"><span class="alert-icon">⚠️</span><span>'
-        + '<strong>I8 board conflict:</strong> This closet has ' + closetContacts + ' contact-only door' + (closetContacts>1?'s':'') + ' requiring ' + i8Needed_cov + ' I8 board' + (i8Needed_cov>1?'s':'') + '. '
-        + 'I8 boards only install in <strong>16-door enclosures</strong> — select a 16-door panel in this closet or these contacts will not have an enclosure to mount in.'
+  // I8 per-closet warning
+  var i8Choice = getPillVal('pg-i8');
+  var cstd = parseInt(($('he-cstd-' + idx)||{}).value) || 0;
+  var cohd = parseInt(($('he-cohd-' + idx)||{}).value) || 0;
+  var closetContacts = cstd + cohd;
+  if(getMfr() === 'ccure' && i8Choice === 'no' && closetContacts > 0){
+    var has16 = panels.some(function(sz){ return parseInt(sz) === 16; });
+    var hasNon16 = panels.some(function(sz){ return sz && sz !== 'none' && parseInt(sz) !== 16; });
+    if(hasNon16 && !has16){
+      msg += '<div class="alert alert-warn" style="margin-top:6px;margin-bottom:0"><span class="alert-icon">\u26a0\ufe0f</span><span>'
+        + '<strong>I8 conflict:</strong> This closet has ' + closetContacts + ' contact-only door' + (closetContacts>1?'s':'') + ' needing I8 boards. I8 boards only install in 16-door enclosures.'
         + '</span></div>';
     }
   }
-
-  var contactDoors = d.contactDoors || 0;
-  var ohdDoors     = d.ohdDoors || 0;
-  var totalContactHE = contactDoors + ohdDoors;
-  var i8Choice_he  = getPillVal('pg-i8');
-  var qDC_total    = ival('qty-dc', 0);
-  var qOHD_total   = ival('qty-ohd', 0);
-  var totalContactProject = qDC_total + qOHD_total;
-
-  return '<div class="he-header">'
-    + '<div class="he-badge">' + (idx+1) + '</div>'
-    + '<input class="he-name-input" type="text" value="' + d.name + '" placeholder="e.g. IDF-1 / Main Security Room" onchange="HE_DATA['+idx+'].name=this.value" />'
-    + '<input class="he-door-input" type="number" min="0" value="' + (doors > 0 ? doors : '') + '" placeholder="Doors" id="he-doors-input-'+idx+'" onchange="updateHEDoors('+idx+',this.value)" />'
-    + '<span class="he-doors-badge" id="he-badge-'+idx+'">' + (doors > 0 ? doors + ' doors' : '—') + '</span>'
-    + '</div>'
-    + (totalContactProject > 0 && getMfr() === 'ccure' ? (
-        '<div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap">'
-        + '<span style="font-size:12px;color:var(--text3);font-weight:500;white-space:nowrap">Contact-only doors at this closet:</span>'
-        + '<div style="display:flex;gap:6px;align-items:center">'
-        + '<label style="font-size:11px;color:var(--text3)">Standard:</label>'
-        + '<input type="number" min="0" value="' + contactDoors + '" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" onchange="HE_DATA['+idx+'].contactDoors=parseInt(this.value)||0;refreshHE('+idx+')" />'
-        + '<label style="font-size:11px;color:var(--text3);margin-left:4px">OHD:</label>'
-        + '<input type="number" min="0" value="' + ohdDoors + '" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" onchange="HE_DATA['+idx+'].ohdDoors=parseInt(this.value)||0;refreshHE('+idx+')" />'
-        + (totalContactHE > 0 ? '<span style="font-size:11px;font-weight:600;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(0,194,168,.25);padding:2px 8px;border-radius:10px;margin-left:4px">' + totalContactHE + ' contact' + (totalContactHE>1?'s':'') + '</span>' : '')
-        + '</div>'
-        + getContactAssignmentStatus()
-        + '</div>'
-      ) : '')
-    + '<div class="managed-toggle">'
-    + '<label>Power management:</label>'
-    + '<div class="pill-group" id="pg-mgd-'+idx+'">'
-    + '<button class="pill' + (!mgd?' active-yes':'') + '" data-val="no" onclick="setManaged('+idx+',false,this)">Unmanaged</button>'
-    + '<button class="pill' + (mgd?' active-yes':'') + '" data-val="yes" onclick="setManaged('+idx+',true,this)">Managed</button>'
-    + '</div></div>'
-    + '<div id="he-panels-'+idx+'">'
-    + panelRows
-    + '</div>'
-    + covHTML;
+  container.innerHTML = msg;
 }
 
-function makePanelRow(idx, panelNum, managed, totalDoors, selectedVal) {
-  var label = ['Panel 1', 'Panel 2', 'Panel 3'][panelNum];
-  var opts = '<option value="none">— select panel —</option>';
-
-  var sizes = [4, 8, 16];
-  sizes.forEach(function(sz) {
-    var tier = managed ? CCURE_PANELS.managed : CCURE_PANELS.unmanaged;
-    var cfg = tier[sz];
-    if (!cfg) {
-      // 4-door not available in managed
-      opts += '<option value="' + sz + '" disabled style="color:#666">4-door panel — not available (managed)</option>';
-    } else {
-      var sel = (String(selectedVal) === String(sz)) ? ' selected' : '';
-      opts += '<option value="' + sz + '"' + sel + '>' + cfg.label + ' — ' + cfg.ps + '</option>';
-    }
+function updateAllContactStatus(){
+  var qDC  = ival('qty-dc', 0);
+  var qOHD = ival('qty-ohd', 0);
+  var totalProject = qDC + qOHD;
+  if(totalProject === 0) return;
+  var activeIdxs = getActiveClosets();
+  var assigned = activeIdxs.reduce(function(a, idx){
+    return a + (parseInt(($('he-cstd-'+idx)||{}).value)||0) + (parseInt(($('he-cohd-'+idx)||{}).value)||0);
+  }, 0);
+  var diff = totalProject - assigned;
+  activeIdxs.forEach(function(idx){
+    var statusEl = $('he-cstatus-' + idx);
+    if(!statusEl) return;
+    if(diff > 0) statusEl.innerHTML = '<span style="color:var(--amber)">' + diff + ' unassigned across closets</span>';
+    else if(diff < 0) statusEl.innerHTML = '<span style="color:var(--red)">Over-assigned by ' + Math.abs(diff) + '</span>';
+    else statusEl.innerHTML = '<span style="color:var(--teal)">\u2713 All contacts assigned</span>';
   });
-
-  return '<div class="panel-row" style="margin-bottom:8px">'
-    + '<span class="panel-row-label">' + label + '</span>'
-    + '<select class="panel-sel" onchange="HE_DATA['+idx+'].panels['+panelNum+']=this.value;refreshHE('+idx+')">' + opts + '</select>'
-    + '</div>';
 }
 
-function setManaged(idx, managed, btn) {
-  HE_DATA[idx].managed = managed;
-  // Reset panel selections when toggling managed/unmanaged
-  HE_DATA[idx].panels = ['none','none','none'];
-  var grp = $('pg-mgd-' + idx);
-  grp.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active-yes','active-no','active'); });
-  btn.classList.add('active-yes');
-  refreshHE(idx);
-}
-
-function updateHEDoors(idx, val){
-  HE_DATA[idx].doors = parseInt(val) || 0;
-  var badge = $('he-badge-' + idx);
-  if(badge) badge.textContent = HE_DATA[idx].doors > 0 ? HE_DATA[idx].doors + ' doors' : '—';
-  checkI8HeadendWarning();
-}
-
-function refreshHE(idx) {
-  var block = $('he-' + idx);
+function deleteCloset(idx){
+  var block = $('hec-' + idx);
   if(block){
-    var savedDoors = HE_DATA[idx].doors;
-    block.innerHTML = heBlockHTML(idx);
-    // Restore door input value (browser may reset it to 0 after innerHTML swap)
-    var inp = $('he-doors-input-' + idx);
-    if(inp && savedDoors > 0) inp.value = savedDoors;
+    block.style.display = 'none';
+    // Renumber visible badges
+    var n = 1;
+    getActiveClosets().forEach(function(i){
+      var badge = $('hec-' + i + ' .he-badge');
+      if(badge) badge.textContent = n++;
+    });
+    heChanged();
   }
-  var badge = $('he-badge-' + idx);
-  if(badge) badge.textContent = HE_DATA[idx].doors > 0 ? HE_DATA[idx].doors + ' doors' : '—';
-  checkI8HeadendWarning();
+}
+
+var HE_NEXT_IDX_counter = 3;
+function addCloset(){
+  var list = $('he-closet-list');
+  if(!list) return;
+  var idx = HE_NEXT_IDX_counter++;
+  HE_MANAGED[idx] = false;
+  HE_PANELS[idx]  = ['none','none','none'];
+
+  var div = document.createElement('div');
+  div.className = 'he-block';
+  div.id = 'hec-' + idx;
+  var n = getActiveClosets().length + 1;
+  div.innerHTML =
+    '<div class="he-header">'
+    + '<div class="he-badge">' + n + '</div>'
+    + '<input class="he-name-input" type="text" placeholder="e.g. IDF-' + n + '" value="Closet ' + n + '" oninput="heChanged()"/>'
+    + '<input class="he-door-input" type="number" min="0" placeholder="Reader doors" id="he-rdoors-' + idx + '" oninput="heChanged()"/>'
+    + '<span class="he-doors-badge" id="he-rbadge-' + idx + '">\u2014</span>'
+    + '<button class="del-btn" onclick="deleteCloset(' + idx + ')" title="Remove this closet">\u00d7</button>'
+    + '</div>'
+    + '<div class="he-contact-row" id="he-crow-' + idx + '" style="display:none">'
+    + '<span style="font-size:12px;color:var(--text3);font-weight:500;white-space:nowrap">Contact-only doors at this closet:</span>'
+    + '<label style="font-size:11px;color:var(--text3)">Standard:</label>'
+    + '<input type="number" min="0" value="0" id="he-cstd-' + idx + '" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" oninput="heChanged()"/>'
+    + '<label style="font-size:11px;color:var(--text3)">OHD:</label>'
+    + '<input type="number" min="0" value="0" id="he-cohd-' + idx + '" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" oninput="heChanged()"/>'
+    + '<span id="he-ctotal-' + idx + '" style="font-size:11px;font-weight:600;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(0,194,168,.25);padding:2px 8px;border-radius:10px"></span>'
+    + '<span id="he-cstatus-' + idx + '" style="font-size:11px;margin-left:auto"></span>'
+    + '</div>'
+    + '<div class="managed-toggle"><label>Power management:</label>'
+    + '<div class="pill-group">'
+    + '<button class="pill active-yes" data-val="no" id="he-unmgd-' + idx + '" onclick="setHEManaged(' + idx + ',false,this)">Unmanaged</button>'
+    + '<button class="pill" data-val="yes" id="he-mgd-' + idx + '" onclick="setHEManaged(' + idx + ',true,this)">Managed</button>'
+    + '</div></div>'
+    + '<div id="he-panels-' + idx + '"></div>'
+    + '<div id="he-coverage-' + idx + '"></div>';
+
+  list.appendChild(div);
+  heChanged();
+}
+
+function checkI8HeadendWarning(){
+  if(getMfr() !== 'ccure') return;
+  var choice = getPillVal('pg-i8');
+  if(choice !== 'no') return;
+  var qDC  = ival('qty-dc', 0);
+  var qOHD = ival('qty-ohd', 0);
+  if((qDC + qOHD) === 0) return;
+  var i8Needed = Math.ceil((qDC + qOHD) / 8);
+  var enc16 = 0;
+  getActiveClosets().forEach(function(idx){
+    (HE_PANELS[idx]||[]).forEach(function(sz){ if(parseInt(sz)===16) enc16++; });
+  });
+  var maxSlots = enc16 * 2;
+  var warnEl = $('he-i8-warning');
+  if(!warnEl) return;
+  if(maxSlots < i8Needed){
+    var extraEnc = Math.ceil((i8Needed - maxSlots) / 2);
+    warnEl.innerHTML = '<div class="alert alert-warn" style="margin-bottom:12px"><span class="alert-icon">\u26a0\ufe0f</span><span>'
+      + '<strong>I8 board conflict:</strong> Requires <strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + '</strong> but only <strong>' + maxSlots + ' slot' + (maxSlots!==1?'s':'') + '</strong> available. '
+      + 'Add <strong>' + extraEnc + ' more 16-door enclosure' + (extraEnc>1?'s':'') + '</strong> to your head-end configuration.'
+      + '</span></div>';
+  } else {
+    warnEl.innerHTML = '';
+  }
 }
 
 // ── Build panel BOM from HE_DATA ──────────────────────────────────
@@ -1400,24 +1569,24 @@ function getContactAssignmentStatus(){
 function buildPanelBOM(mfrKey) {
   var items = [];
   if (mfrKey !== 'ccure') {
-    // Placeholder for other manufacturers
     items.push({ pn: '—', desc: 'Access control panel — see manufacturer spec', note: 'Panel configuration for ' + getMfrLabel() + ' — specify per head-end', src: isDealer() ? '3rd Party' : 'ADI', qty: 1 });
     return items;
   }
 
-  HE_DATA.forEach(function(he) {
-    if (!he.doors || he.doors === 0) return;
-    var mgd = he.managed;
+  getActiveClosets().forEach(function(idx) {
+    var rdoors = parseInt(($('he-rdoors-'+idx)||{}).value) || 0;
+    if(rdoors === 0) return;
+    var mgd = HE_MANAGED[idx] || false;
     var tier = mgd ? CCURE_PANELS.managed : CCURE_PANELS.unmanaged;
-    var heName = he.name || ('Head-end ' + (HE_DATA.indexOf(he)+1));
+    var nameEl = $('hec-' + idx + ' .he-name-input');
+    var heName = (nameEl && nameEl.value) ? nameEl.value : ('Closet ' + (idx+1));
+    var panels = HE_PANELS[idx] || ['none','none','none'];
 
-    he.panels.forEach(function(sz, pi) {
+    panels.forEach(function(sz, pi) {
       if (!sz || sz === 'none') return;
       var size = parseInt(sz);
       var cfg = tier[size];
       if (!cfg) return;
-
-      // Power supply enclosure
       items.push({
         pn: cfg.ps,
         desc: 'LifeSafety Power ' + cfg.ps + ' — ' + size + '-door ' + (mgd ? 'Managed' : 'Unmanaged') + ' Enclosure',
@@ -1425,8 +1594,6 @@ function buildPanelBOM(mfrKey) {
         src: 'ADI',
         qty: 1
       });
-
-      // Controllers
       cfg.ctrl.forEach(function(ctrl) {
         items.push({
           pn: ctrl.pn,
@@ -1443,11 +1610,16 @@ function buildPanelBOM(mfrKey) {
 }
 
 function getHESummaryNote() {
-  if (!HE_DATA || HE_DATA.length === 0) return '';
-  var parts = HE_DATA.filter(function(h){ return h.doors > 0; }).map(function(h) {
-    var cap = h.panels.reduce(function(a,v){ return a+(parseInt(v)||0); }, 0);
-    var status = cap >= h.doors ? '✓' : '⚠';
-    return status + ' ' + h.name + ': ' + h.doors + ' doors / ' + cap + ' port capacity (' + (h.managed ? 'Managed' : 'Unmanaged') + ')';
+  var parts = [];
+  getActiveClosets().forEach(function(idx){
+    var rdoors = parseInt(($('he-rdoors-'+idx)||{}).value) || 0;
+    if(rdoors === 0) return;
+    var cap = (HE_PANELS[idx]||[]).reduce(function(a,v){ return a+(parseInt(v)||0); }, 0);
+    var mgd = HE_MANAGED[idx] || false;
+    var nameEl = $('hec-' + idx + ' .he-name-input');
+    var name = (nameEl && nameEl.value) ? nameEl.value : ('Closet '+(idx+1));
+    var status = cap >= rdoors ? '✓' : '⚠';
+    parts.push(status + ' ' + name + ': ' + rdoors + ' doors / ' + cap + ' port capacity (' + (mgd ? 'Managed' : 'Unmanaged') + ')');
   });
   return parts.join(' &nbsp;|&nbsp; ');
 }
