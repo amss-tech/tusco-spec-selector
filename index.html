@@ -1298,10 +1298,7 @@ function heBlockHTML(idx) {
   return '<div class="he-header">'
     + '<div class="he-badge">' + (idx+1) + '</div>'
     + '<input class="he-name-input" type="text" value="' + d.name + '" placeholder="e.g. IDF-1 / Main Security Room" onchange="HE_DATA['+idx+'].name=this.value" />'
-    + '<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">'
-    + '<label style="font-size:10px;color:var(--text3)">Reader doors</label>'
-    + '<input class="he-door-input" type="number" min="0" value="' + (doors||'') + '" onchange="HE_DATA['+idx+'].doors=parseInt(this.value)||0;refreshHE('+idx+')" />'
-    + '</div>'
+    + '<input class="he-door-input" type="number" min="0" value="' + (doors > 0 ? doors : '') + '" placeholder="Doors" id="he-doors-input-'+idx+'" onchange="updateHEDoors('+idx+',this.value)" />'
     + '<span class="he-doors-badge" id="he-badge-'+idx+'">' + (doors > 0 ? doors + ' doors' : '—') + '</span>'
     + '</div>'
     + (totalContactProject > 0 && getMfr() === 'ccure' ? (
@@ -1362,13 +1359,25 @@ function setManaged(idx, managed, btn) {
   refreshHE(idx);
 }
 
+function updateHEDoors(idx, val){
+  HE_DATA[idx].doors = parseInt(val) || 0;
+  var badge = $('he-badge-' + idx);
+  if(badge) badge.textContent = HE_DATA[idx].doors > 0 ? HE_DATA[idx].doors + ' doors' : '—';
+  checkI8HeadendWarning();
+}
+
 function refreshHE(idx) {
   var block = $('he-' + idx);
-  if (block) block.innerHTML = heBlockHTML(idx);
-  // Update badge
-  var doors = HE_DATA[idx].doors;
+  if(block){
+    var savedDoors = HE_DATA[idx].doors;
+    block.innerHTML = heBlockHTML(idx);
+    // Restore door input value (browser may reset it to 0 after innerHTML swap)
+    var inp = $('he-doors-input-' + idx);
+    if(inp && savedDoors > 0) inp.value = savedDoors;
+  }
   var badge = $('he-badge-' + idx);
-  if (badge) badge.textContent = doors > 0 ? doors + ' doors' : '—';
+  if(badge) badge.textContent = HE_DATA[idx].doors > 0 ? HE_DATA[idx].doors + ' doors' : '—';
+  checkI8HeadendWarning();
 }
 
 // ── Build panel BOM from HE_DATA ──────────────────────────────────
