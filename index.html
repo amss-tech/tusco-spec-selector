@@ -1572,38 +1572,6 @@ function checkI8HeadendWarning(){
   }
 }
 
-function checkI8HeadendWarning(){
-  if(getMfr() !== 'ccure') return;
-  var choice = getPillVal('pg-i8');
-  if(choice !== 'no') return;
-  var qDC  = ival('qty-dc', 0);
-  var qOHD = ival('qty-ohd', 0);
-  if((qDC + qOHD) === 0) return;
-  var i8Needed = Math.ceil((qDC + qOHD) / 8);
-  var enc16 = 0;
-  HE_DATA.forEach(function(he){
-    he.panels.forEach(function(sz){ if(parseInt(sz)===16) enc16++; });
-  });
-  var maxSlots = enc16 * 2;
-  var warnEl = $('he-i8-warning');
-  if(!warnEl){
-    var container = $('he-blocks');
-    if(!container) return;
-    warnEl = document.createElement('div');
-    warnEl.id = 'he-i8-warning';
-    container.parentNode.insertBefore(warnEl, container);
-  }
-  if(maxSlots < i8Needed){
-    var extraEnc = Math.ceil((i8Needed - maxSlots) / 2);
-    warnEl.innerHTML = '<div class="alert alert-warn" style="margin-bottom:12px"><span class="alert-icon">⚠️</span><span>'
-      + '<strong>I8 board conflict:</strong> Requires <strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + '</strong> but only <strong>' + maxSlots + ' slot' + (maxSlots!==1?'s':'') + '</strong> available. '
-      + 'Add <strong>' + extraEnc + ' more 16-door enclosure' + (extraEnc>1?'s':'') + '</strong> to your head-end configuration.'
-      + '</span></div>';
-  } else {
-    warnEl.innerHTML = '';
-  }
-}
-
 function resetTool(){
   $('output-area').classList.add('hidden');
   $('output-area').innerHTML='';
