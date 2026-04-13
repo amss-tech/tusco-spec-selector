@@ -437,13 +437,13 @@ body{min-height:100vh}
 
 
   <div class="gen-wrap">
+    <button class="back-btn" onclick="backToSystem()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
     <button class="gen-btn" onclick="goToDoors()">
       <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       Continue to door schedule
     </button>
   </div>
-
-
+</div>
 
 <!-- STEP 5: HEAD-END PANEL CONFIGURATOR -->
 <div id="view-headend" class="hidden">
@@ -609,15 +609,33 @@ body{min-height:100vh}
     <div class="door-type-block">
       <div class="door-type-header">
         <div><div class="door-type-label">Standard Door — Contact Only</div><div class="door-type-sub">No reader or lock — monitoring / alarm only</div></div>
-        <input type="number" class="door-qty-input" id="qty-dc" min="0" value="0"/>
+        <input type="number" class="door-qty-input" id="qty-dc" min="0" value="0" onchange="checkI8Card()"/>
       </div>
     </div>
     <div class="door-type-block">
       <div class="door-type-header">
         <div><div class="door-type-label">Overhead Door (OHD) — Contact Only</div><div class="door-type-sub">Roll-up or sectional overhead door</div></div>
-        <input type="number" class="door-qty-input" id="qty-ohd" min="0" value="0"/>
+        <input type="number" class="door-qty-input" id="qty-ohd" min="0" value="0" onchange="checkI8Card()"/>
       </div>
     </div>
+  </div>
+
+
+  <!-- I8 BOARD QUESTION — appears when contact-only doors exist + CCURE -->
+  <div class="card hidden" id="i8-card">
+    <div class="card-title">Input board requirement (C·CURE 9000)</div>
+    <div class="alert alert-info" style="margin-bottom:12px">
+      <span class="alert-icon">ℹ️</span>
+      <span>You have contact-only doors. The GSTAR-ACM boards have open inputs that may be used for door contacts — or you can use dedicated <strong>I8 Input Boards</strong> (8 inputs each, installs in 16-door enclosures only, max 2 per enclosure).</span>
+    </div>
+    <div class="field">
+      <label>Will these door contacts use open inputs on existing GSTAR-ACM boards?</label>
+      <div class="pill-group mt8" id="pg-i8">
+        <button class="pill" onclick="setPill('pg-i8','yes',this);onI8Change()">Yes — use open ACM inputs</button>
+        <button class="pill" onclick="setPill('pg-i8','no',this);onI8Change()">No — need dedicated I8 boards</button>
+      </div>
+    </div>
+    <div id="i8-result" class="hidden mt8"></div>
   </div>
 
   <!-- VEHICLE GATES -->
@@ -908,6 +926,15 @@ function generateAC(){
   if(totalReaderDoors>0){
     var mfrKey=getMfr();
     var panelItems=buildPanelBOM(mfrKey);
+    if(i8Qty > 0){
+      panelItems.push({
+        pn:'I8-Board',
+        desc:'Software House I8 Input Board',
+        note:i8Qty+' board'+(i8Qty>1?'s':'')+' × 8 inputs = '+i8Qty*8+' inputs for '+(ival('qty-dc',0)+ival('qty-ohd',0))+' contact-only doors. Installs in 16-door enclosures only.',
+        src:'ADI',
+        qty:i8Qty
+      });
+    }
     if(panelItems.length){
       cats.push({label:'Panels & controllers',items:panelItems});
       var heSummary=getHESummaryNote();
@@ -961,6 +988,9 @@ function generateAC(){
     addLockItems(edLockQty,lockED,'Exterior double doors'+(edBoth?' (both active)':' (one active)'));
     if(lockItems.length)cats.push({label:'Electrified locking hardware',items:lockItems});
   }
+
+  // ── I8 BOARDS (C·CURE contact-only doors) ───────────────────────────────
+  var i8Qty = (getMfr() === 'ccure') ? getI8BoardsForBOM() : 0;
 
   // ── DOOR HARDWARE (REX + CONTACTS + MOTION) ───────────────────────────────
   var hwItems=[];
@@ -1325,6 +1355,76 @@ function backToScope(){
 function backToDoors(){
   hide('view-headend');show('view-doors');setStep(4);
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+
+// ── I8 BOARD LOGIC ────────────────────────────────────────────────────────
+function checkI8Card(){
+  var mfrKey = getMfr();
+  var qDC  = ival('qty-dc', 0);
+  var qOHD = ival('qty-ohd', 0);
+  var hasContacts = (qDC + qOHD) > 0;
+  var isCCure = (mfrKey === 'ccure');
+  if(hasContacts && isCCure){
+    show('i8-card');
+  } else {
+    hide('i8-card');
+    hide('i8-result');
+  }
+}
+
+function onI8Change(){
+  var choice = getPillVal('pg-i8');
+  var qDC   = ival('qty-dc', 0);
+  var qOHD  = ival('qty-ohd', 0);
+  var totalContacts = qDC + qOHD;
+  var i8Needed = Math.ceil(totalContacts / 8);
+  var resultDiv = $('i8-result');
+
+  if(choice === 'yes'){
+    resultDiv.innerHTML = '<div class="alert alert-info mb0"><span class="alert-icon">✓</span><span>Open ACM inputs will be used — no I8 boards needed. Verify available inputs with your panel config.</span></div>';
+    show('i8-result');
+  } else if(choice === 'no'){
+    // Count 16-door enclosures from HE_DATA
+    var enc16 = 0;
+    HE_DATA.forEach(function(he){
+      he.panels.forEach(function(sz){
+        if(parseInt(sz) === 16) enc16++;
+      });
+    });
+    var maxI8Slots = enc16 * 2;
+    var ok = i8Needed <= maxI8Slots;
+    var msg = '';
+    if(enc16 === 0){
+      msg = '<div class="alert alert-assess mb0"><span class="alert-icon">⚠️</span><span>'
+          + '<strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + ' needed</strong> for ' + totalContacts + ' contact-only door' + (totalContacts>1?'s':'') + ' ('+ totalContacts +' contacts ÷ 8 = ' + i8Needed + ' board'+(i8Needed>1?'s':'')+').'
+          + ' <strong>I8 boards only install in 16-door enclosures</strong> — you currently have no 16-door enclosures in your head-end config. Go back and add at least one 16-door enclosure.'
+          + '</span></div>';
+    } else if(!ok){
+      var shortage = i8Needed - maxI8Slots;
+      msg = '<div class="alert alert-assess mb0"><span class="alert-icon">⚠️</span><span>'
+          + '<strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + ' needed</strong> but only <strong>' + maxI8Slots + ' slot' + (maxI8Slots>1?'s':'') + ' available</strong> across ' + enc16 + ' × 16-door enclosure' + (enc16>1?'s':'') + '.'
+          + ' You need <strong>' + Math.ceil(shortage/2) + ' more 16-door enclosure' + (Math.ceil(shortage/2)>1?'s':'') + '</strong> to accommodate the additional I8 boards. Go back to head-end config and add them.'
+          + '</span></div>';
+    } else {
+      var spare = maxI8Slots - i8Needed;
+      msg = '<div class="alert coverage-ok" style="border-radius:var(--radius);padding:10px 14px;border:1px solid rgba(0,194,168,.3)">'
+          + '✓ <strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + '</strong> needed for ' + totalContacts + ' contacts — fits in your ' + enc16 + ' × 16-door enclosure' + (enc16>1?'s':'') + ' (' + spare + ' slot' + (spare>1?'s':'') + ' remaining).'
+          + '</div>';
+    }
+    resultDiv.innerHTML = msg;
+    show('i8-result');
+  } else {
+    hide('i8-result');
+  }
+}
+
+function getI8BoardsForBOM(){
+  var choice = getPillVal('pg-i8');
+  if(choice !== 'no') return 0;
+  var qDC  = ival('qty-dc', 0);
+  var qOHD = ival('qty-ohd', 0);
+  return Math.ceil((qDC + qOHD) / 8);
 }
 
 function resetTool(){
