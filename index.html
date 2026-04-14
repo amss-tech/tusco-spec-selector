@@ -974,7 +974,7 @@ function srcTag(src){
   return'<span class="src-tag '+(cls[src]||'src-allow')+'">'+src+'</span>';
 }
 
-function generateAC(){
+function generateAC(){try{
   setStep(6);
 
   var proj=val('proj-name')||'Access Control Project';
@@ -1267,7 +1267,10 @@ function generateAC(){
   out.innerHTML=html;
   out.classList.remove('hidden');
   out.scrollIntoView({behavior:'smooth',block:'start'});
-}
+}catch(e){
+  var out=$('output-area');
+  if(out){out.innerHTML='<div style="background:#2a0a0a;border:2px solid #E84545;border-radius:8px;padding:1.25rem;margin-top:1rem;font-family:DM Mono,monospace;font-size:13px;color:#FF8080"><strong style="color:#fff">❌ generateAC() error — copy this and send to dev:</strong><br><br>'+e.message+'<br><br><span style="font-size:11px;color:#aaa">'+String(e.stack).replace(/\n/g,"<br>")+'</span></div>';out.classList.remove('hidden');out.scrollIntoView({behavior:'smooth',block:'start'});}else{alert('generateAC error: '+e.message);}console.error('generateAC threw:',e);
+}}
 
 
 // ═══════════════════════════════════════════════════════════════════
