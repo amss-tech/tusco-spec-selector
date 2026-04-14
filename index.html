@@ -975,6 +975,7 @@ function srcTag(src){
 }
 
 function generateAC(){try{
+  hide('view-headend');
   setStep(6);
 
   var proj=val('proj-name')||'Access Control Project';
@@ -1719,6 +1720,9 @@ function getI8BoardsForBOM(){
 function resetTool(){
   $('output-area').classList.add('hidden');
   $('output-area').innerHTML='';
+  // Hide all step views
+  ['view-headend','view-doors','view-scope','view-system'].forEach(hide);
+  show('view-trade');
   setStep(1);
   window.scrollTo({top:0,behavior:'smooth'});
 }
