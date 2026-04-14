@@ -830,8 +830,8 @@ function setPill(groupId,v,btn){
 
 function getPillVal(groupId){
   var grp=$(groupId);if(!grp)return null;
-  var a=grp.querySelector('.active,.active-yes,.active-no');
-  return a?a.dataset.val:null;
+  var a=grp.querySelector('.active,.active-yes,.active-no,.active-amber');
+  return (a&&a.dataset&&a.dataset.val!==undefined)?a.dataset.val:null;
 }
 
 // STEP 1
@@ -1554,7 +1554,9 @@ function checkI8HeadendWarning(){
 function getContactAssignmentStatus(){
   var totalContactProject = ival('qty-dc', 0) + ival('qty-ohd', 0);
   if(totalContactProject === 0) return '';
-  var assigned = HE_DATA.reduce(function(a,h){ return a + (h.contactDoors||0) + (h.ohdDoors||0); }, 0);
+  var assigned = getActiveClosets().reduce(function(a,idx){
+    return a + (parseInt(($('he-cstd-'+idx)||{}).value)||0) + (parseInt(($('he-cohd-'+idx)||{}).value)||0);
+  }, 0);
   var diff = totalContactProject - assigned;
   if(diff > 0){
     return '<span style="font-size:11px;color:var(--amber);margin-left:auto">'
@@ -1670,12 +1672,9 @@ function onI8Change(){
     resultDiv.innerHTML = '<div class="alert alert-info mb0"><span class="alert-icon">✓</span><span>Open ACM inputs will be used — no I8 boards needed. Verify available inputs with your panel config.</span></div>';
     show('i8-result');
   } else if(choice === 'no'){
-    // Count 16-door enclosures from HE_DATA
     var enc16 = 0;
-    HE_DATA.forEach(function(he){
-      he.panels.forEach(function(sz){
-        if(parseInt(sz) === 16) enc16++;
-      });
+    getActiveClosets().forEach(function(ci){
+      (HE_PANELS[ci]||[]).forEach(function(sz){ if(parseInt(sz)===16) enc16++; });
     });
     var maxI8Slots = enc16 * 2;
     var ok = i8Needed <= maxI8Slots;
