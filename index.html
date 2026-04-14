@@ -1328,6 +1328,11 @@ function goToHeadend(){
   if(inp && (!inp.value || inp.value === '0') && totalRdr > 0){
     inp.value = totalRdr;
   }
+  // Render panel selects for all pre-existing closets on arrival
+  getActiveClosets().forEach(function(idx){
+    rebuildPanelSelects(idx);
+    updateCoverage(idx);
+  });
   heChanged();
   updateHeContactSummary();
 }
