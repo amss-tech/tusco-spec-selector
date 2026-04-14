@@ -336,7 +336,7 @@ body{min-height:100vh}
       <div class="fg2 mb0">
         <div class="field">
           <label>Server preference</label>
-          <select id="new-server">
+          <select id="new-server" onchange="onServerPrefChange()">
             <option value="onprem">On-premise server</option>
             <option value="cloud">Cloud-based (no server on site)</option>
           </select>
@@ -360,7 +360,82 @@ body{min-height:100vh}
         <span class="alert-icon">⚠️</span>
         <span><strong>Note:</strong> Tusco is not an authorized dealer for this platform. Hardware and licenses must be purchased through a 3rd party. You will need the <strong>Site License Code or Site Serial #</strong> to have materials and licenses quoted from a third party. This has been noted on the spec output.</span>
       </div>
-    </div>
+    </div><!-- /platform card -->
+
+    <!-- SERVER & WORKSTATION QUESTIONS (on-prem only) -->
+    <div id="server-questions" class="hidden">
+      <div class="card">
+        <div class="card-title">Server configuration</div>
+        <div class="field">
+          <label>Is the customer providing a server, or are we providing a site server?</label>
+          <div class="pill-group mt8" id="pg-svr-who">
+            <button class="pill" onclick="setPill('pg-svr-who','tusco',this);onSvrWhoChange()">Tusco providing server</button>
+            <button class="pill" onclick="setPill('pg-svr-who','customer',this);onSvrWhoChange()">Customer providing server</button>
+          </div>
+        </div>
+        <div id="cust-svr-block" class="hidden mt8">
+          <div class="divider"></div>
+          <div class="field">
+            <label>Physical server or VM?</label>
+            <div class="pill-group mt8" id="pg-svr-type">
+              <button class="pill" onclick="setPill('pg-svr-type','physical',this);onSvrTypeChange()">Physical server</button>
+              <button class="pill" onclick="setPill('pg-svr-type','vm',this);onSvrTypeChange()">VM</button>
+            </div>
+          </div>
+          <div id="vm-block" class="hidden mt8">
+            <div class="field">
+              <label>Hypervisor platform</label>
+              <div class="pill-group mt8" id="pg-hypervisor">
+                <button class="pill" onclick="setPill('pg-hypervisor','hyperv',this)">Hyper-V</button>
+                <button class="pill" onclick="setPill('pg-hypervisor','vmware',this)">VMware</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="tusco-svr-block" class="hidden mt8">
+          <div class="alert alert-info mb0">
+            <span class="alert-icon">🖥️</span>
+            <span>Tusco will provide a site server. A placeholder server line item will be added to the spec list — confirm spec with your C·CURE engineer before finalizing.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Client workstations</div>
+        <div class="field">
+          <label>Thick client or web clients?</label>
+          <div class="pill-group mt8" id="pg-client-type">
+            <button class="pill" onclick="setPill('pg-client-type','thick',this);onClientTypeChange()">Thick client</button>
+            <button class="pill" onclick="setPill('pg-client-type','web',this);onClientTypeChange()">Web clients only</button>
+          </div>
+        </div>
+        <div id="thick-client-block" class="hidden mt8">
+          <div class="divider"></div>
+          <div class="field">
+            <label>Is Tusco providing client PC(s) with monitor, keyboard, and mouse?</label>
+            <div class="pill-group mt8" id="pg-tusco-pc">
+              <button class="pill" onclick="setPill('pg-tusco-pc','yes',this);onTuscoPCChange()">Yes — Tusco providing</button>
+              <button class="pill" onclick="setPill('pg-tusco-pc','no',this);onTuscoPCChange()">No — customer providing</button>
+            </div>
+          </div>
+          <div id="pc-qty-block" class="hidden mt8">
+            <div class="fg2">
+              <div class="field">
+                <label>How many client workstations?</label>
+                <input type="number" id="pc-qty" min="1" value="1" oninput="onPCQtyChange()"/>
+              </div>
+            </div>
+            <div id="pc-rows-container" class="hidden mt8"></div>
+          </div>
+        </div>
+        <div id="web-client-note" class="hidden mt8">
+          <div class="alert alert-info mb0">
+            <span class="alert-icon">🌐</span>
+            <span>Web clients only — no client PC hardware needed. Ensure the site server is accessible from client browsers on the local network.</span>
+          </div>
+        </div>
+      </div>
+    </div><!-- /server-questions -->
     <div class="gen-wrap">
       <button class="back-btn" onclick="backToTrade()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
       <button class="gen-btn" onclick="goToScope()">
@@ -435,7 +510,6 @@ body{min-height:100vh}
       </div>
     </div>
   </div>
-
 
   <div class="gen-wrap">
     <button class="back-btn" onclick="backToSystem()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
@@ -588,18 +662,7 @@ body{min-height:100vh}
           <input type="number" class="door-qty-input" id="qty-si" min="0" value="0" onchange="onDoorQty('si')"/>
         </div>
         <div class="door-sub-q hidden" id="sub-si">
-          <div class="field">
-            <div class="sub-label">Lock type for single interior doors</div>
-            <select id="lock-si" onchange="onLockChange('si')">
-              <option value="strike">Electric Strike — HES-4500-12/24-630</option>
-              <option value="rim">RIM Strike — HES-9400-12/24-630</option>
-              <option value="mag">Maglock — AC-600LB</option>
-            </select>
-          </div>
-          <div id="mag-warn-si" class="hidden alert alert-info mb0">
-            <span class="alert-icon">🚪</span>
-            <span>Maglock selected — an <strong>Essex PEB-2S Emergency Exit Button</strong> will be added per door.</span>
-          </div>
+          <div id="door-lock-rows-si"></div>
         </div>
       </div>
 
@@ -610,18 +673,7 @@ body{min-height:100vh}
           <input type="number" class="door-qty-input" id="qty-se" min="0" value="0" onchange="onDoorQty('se')"/>
         </div>
         <div class="door-sub-q hidden" id="sub-se">
-          <div class="field">
-            <div class="sub-label">Lock type for single exterior doors</div>
-            <select id="lock-se" onchange="onLockChange('se')">
-              <option value="strike">Electric Strike — HES-4500-12/24-630</option>
-              <option value="rim">RIM Strike — HES-9400-12/24-630</option>
-              <option value="mag">Maglock — AC-600LB</option>
-            </select>
-          </div>
-          <div id="mag-warn-se" class="hidden alert alert-info mb0">
-            <span class="alert-icon">🚪</span>
-            <span>Maglock selected — an <strong>Essex PEB-2S Emergency Exit Button</strong> will be added per door.</span>
-          </div>
+          <div id="door-lock-rows-se"></div>
         </div>
       </div>
 
@@ -639,18 +691,7 @@ body{min-height:100vh}
               <button class="pill" onclick="setPill('pg-id-both','no',this)">No — one active leaf</button>
             </div>
           </div>
-          <div class="field">
-            <div class="sub-label">Lock type</div>
-            <select id="lock-id" onchange="onLockChange('id')">
-              <option value="strike">Electric Strike — HES-4500-12/24-630</option>
-              <option value="rim">RIM Strike — HES-9400-12/24-630</option>
-              <option value="mag">Maglock — AC-600LB</option>
-            </select>
-          </div>
-          <div id="mag-warn-id" class="hidden alert alert-info mb0">
-            <span class="alert-icon">🚪</span>
-            <span>Maglock selected — an <strong>Essex PEB-2S Emergency Exit Button</strong> will be added per opening.</span>
-          </div>
+          <div id="door-lock-rows-id"></div>
         </div>
       </div>
 
@@ -668,18 +709,7 @@ body{min-height:100vh}
               <button class="pill" onclick="setPill('pg-ed-both','no',this)">No — one active leaf</button>
             </div>
           </div>
-          <div class="field">
-            <div class="sub-label">Lock type</div>
-            <select id="lock-ed" onchange="onLockChange('ed')">
-              <option value="strike">Electric Strike — HES-4500-12/24-630</option>
-              <option value="rim">RIM Strike — HES-9400-12/24-630</option>
-              <option value="mag">Maglock — AC-600LB</option>
-            </select>
-          </div>
-          <div id="mag-warn-ed" class="hidden alert alert-info mb0">
-            <span class="alert-icon">🚪</span>
-            <span>Maglock selected — an <strong>Essex PEB-2S Emergency Exit Button</strong> will be added per opening.</span>
-          </div>
+          <div id="door-lock-rows-ed"></div>
         </div>
       </div>
     </div>
@@ -701,7 +731,6 @@ body{min-height:100vh}
       </div>
     </div>
   </div>
-
 
   <!-- I8 BOARD QUESTION — appears when contact-only doors exist + CCURE -->
   <div class="card hidden" id="i8-card">
@@ -799,7 +828,6 @@ function hide(id){$(id)&&$(id).classList.add('hidden')}
 function val(id){return ($(''+id)||{}).value||''}
 function ival(id,d){return parseInt(val(id))||d||0}
 function fval(id,d){return parseFloat(val(id))||d||0}
-function pilVal(groupId){var a=$('#'+groupId+' .pill.active,#'+groupId+' .pill.active-yes,#'+groupId+' .pill.active-no');return a&&a.length?a[0].dataset.val:null}
 
 function setStep(n){
   for(var i=1;i<=6;i++){
@@ -809,7 +837,6 @@ function setStep(n){
     else if(i===n)el.classList.add('active');
   }
 }
-
 
 function setPillAmber(groupId, v, btn){
   var grp = $(groupId) || btn.parentElement;
@@ -822,7 +849,7 @@ function setPillAmber(groupId, v, btn){
 
 function setPill(groupId,v,btn){
   var grp=$(groupId)||btn.parentElement;
-  grp.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active','active-yes','active-no');});
+  grp.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active','active-yes','active-no','active-amber');});
   btn.dataset.val=v;
   if(v==='yes')btn.classList.add('active-yes');
   else if(v==='no')btn.classList.add('active-no');
@@ -856,7 +883,6 @@ function setSysType(t,btn){
 function onExistingPlatform(){
   var v=val('existing-platform');
   S.existingPlatform=v;
-  var needsSerial=v==='ccure';
   var isDealer=(v==='lenel_og'||v==='lenel_s2'||v==='genetec'||v==='milestone'||v==='other');
   $('serial-field').style.display=v?'flex':'none';
   if(v==='ccure'){$('serial-label').textContent='Site Serial # (required for quoting)';}
@@ -889,9 +915,6 @@ function showELH(tusco){
     show('elh-note');
   }
 }
-
-
-// goToHeadend defined in HE engine block
 
 function updateHeContactSummary(){
   var mfrKey = getMfr();
@@ -939,6 +962,7 @@ function onDoorQty(type){
     if(n>0){sub.classList.remove('hidden');if(hdr)hdr.classList.add('open');}
     else{sub.classList.add('hidden');if(hdr)hdr.classList.remove('open');}
   }
+  if(['si','se','id','ed'].indexOf(type) !== -1) buildDoorLockRows(type);
 }
 
 function onLockChange(type){
@@ -989,32 +1013,23 @@ function generateAC(){try{
   var elhWho=getPillVal('pg-elh');
   var tuscoELH=(elhWho==='yes');
 
-  // door quantities
   var qSI=ival('qty-si',0),qSE=ival('qty-se',0);
   var qID=ival('qty-id',0),qED=ival('qty-ed',0);
   var qDC=ival('qty-dc',0),qOHD=ival('qty-ohd',0);
   var qGate=ival('qty-gate',0);
   var totalReaderDoors=ival('total-readers',0);
 
-  // lock types
-  var lockSI=val('lock-si'),lockSE=val('lock-se');
-  var lockID=val('lock-id'),lockED=val('lock-ed');
-
-  // double door both active
   var idBoth=getPillVal('pg-id-both')==='yes';
   var edBoth=getPillVal('pg-ed-both')==='yes';
 
-  // gate options
   var hasPed=getPillVal('pg-ped')==='yes';
   var pedType=val('ped-type');
   var gateReader=val('gate-reader');
   var hasIntercom=getPillVal('pg-intercom')==='yes';
   var intercomType=val('intercom-type');
 
-  // totals
   var totalDoors=qSI+qSE+qID+qED+qDC+qOHD+qGate;
   var readerDoors=qSI+qSE+qID+qED+qGate;
-  var panelQty=Math.max(1,Math.ceil(totalReaderDoors/4));
 
   var cats=[];
   var notes=[];
@@ -1037,7 +1052,6 @@ function generateAC(){try{
   if(totalReaderDoors>0){
     var mfrKey=getMfr();
     var panelItems=buildPanelBOM(mfrKey);
-    // I8 boards per head-end — read from DOM
     if(getPillVal('pg-i8') === 'no'){
       getActiveClosets().forEach(function(idx){
         var cstd = parseInt(($('he-cstd-'+idx)||{}).value) || 0;
@@ -1047,13 +1061,7 @@ function generateAC(){try{
           var i8PerCloset = Math.ceil(closetCon / 8);
           var nameEl = $('hec-' + idx + ' .he-name-input');
           var heName = (nameEl && nameEl.value) ? nameEl.value : ('Closet '+(idx+1));
-          panelItems.push({
-            pn:'I8-Board',
-            desc:'Software House I8 Input Board',
-            note:heName+' — '+i8PerCloset+' board'+(i8PerCloset>1?'s':'')+' for '+closetCon+' contact-only door'+(closetCon>1?'s':'')+'. Installs in 16-door enclosure only.',
-            src:'ADI',
-            qty:i8PerCloset
-          });
+          panelItems.push({pn:'I8-Board',desc:'Software House I8 Input Board',note:heName+' — '+i8PerCloset+' board'+(i8PerCloset>1?'s':'')+' for '+closetCon+' contact-only door'+(closetCon>1?'s':'')+'. Installs in 16-door enclosure only.',src:'ADI',qty:i8PerCloset});
         }
       });
     }
@@ -1066,7 +1074,7 @@ function generateAC(){try{
 
   // ── READERS ───────────────────────────────────────────────────────────────
   var readerItems=[];
-  var stdReaderQty=qSI+qSE+qID+qED; // 1 per opening
+  var stdReaderQty=qSI+qSE+qID+qED;
   if(stdReaderQty>0){
     readerItems.push({pn:'HID 40NKS-00-000000',desc:'HID Standard Card Reader',note:'1 per opening — all single and double doors',src:'ADI',qty:stdReaderQty});
   }
@@ -1074,109 +1082,70 @@ function generateAC(){try{
     var gRdr=(gateReader==='lr'||gateReader==='')? 'HID MaxiProx 5375':'HID 40NKS-00-000000';
     var gRdrDesc=gateReader==='keypad'?'HID Card Reader with Keypad':gateReader==='lr'?'HID MaxiProx 5375 Long Range Reader':'HID Standard Card Reader';
     readerItems.push({pn:gRdr,desc:gRdrDesc,note:'Vehicle gate reader — 1 per gate',src:'ADI',qty:qGate});
-    if(hasPed){
-      var pedDesc=(pedType==='double'?'Double':'Single')+' vehicle pedestal';
-      readerItems.push({pn:'—',desc:pedDesc,note:'Reader pedestal for vehicle gate',src:'ADI',qty:qGate});
-    }
-    if(hasIntercom){
-      var iDesc=(intercomType==='video'?'Video intercom':'Audio-only intercom')+' — vehicle gate';
-      readerItems.push({pn:'—',desc:iDesc,src:'ADI',qty:qGate});
-    }
+    if(hasPed){readerItems.push({pn:'—',desc:(pedType==='double'?'Double':'Single')+' vehicle pedestal',note:'Reader pedestal for vehicle gate',src:'ADI',qty:qGate});}
+    if(hasIntercom){readerItems.push({pn:'—',desc:(intercomType==='video'?'Video intercom':'Audio-only intercom')+' — vehicle gate',src:'ADI',qty:qGate});}
   }
   if(readerItems.length)cats.push({label:'Readers',items:readerItems});
 
   // ── LOCKING HARDWARE ──────────────────────────────────────────────────────
   if(tuscoELH){
     var lockItems=[];
-    var lockMap={strike:{pn:'HES-4500-12/24-630',desc:'Electric Strike — HES-4500-12/24-630'},
-                 rim:{pn:'HES-9400-12/24-630',desc:'RIM Strike — HES-9400-12/24-630'},
-                 mag:{pn:'AC-600LB',desc:'Maglock 600lb — AC-600LB'}};
+    var lockMap={strike:{pn:'HES-4500-12/24-630',desc:'Electric Strike — HES-4500-12/24-630'},rim:{pn:'HES-9400-12/24-630',desc:'RIM Strike — HES-9400-12/24-630'},mag:{pn:'AC-600LB',desc:'Maglock 600lb — AC-600LB'}};
 
-    function addLockItems(qty,lockType,label,magNote){
-      if(qty<=0)return;
-      var lk=lockMap[lockType]||lockMap.strike;
-      lockItems.push({pn:lk.pn,desc:lk.desc,note:label,src:'ADI',qty:qty});
-      if(lockType==='mag'){
-        lockItems.push({pn:'PEB-2S',desc:'Essex PEB-2S Emergency Exit Button',note:'Required with maglock — '+label,src:'ADI',qty:qty});
-      }
+    function addLockItemsFromMap(type, doorQty, labelBase, multiplier){
+      if(doorQty <= 0) return;
+      var summary = getDoorLockSummary(type);
+      if(Object.keys(summary).length === 0) summary = {strike: doorQty};
+      Object.keys(summary).forEach(function(lockType){
+        var count = summary[lockType] * (multiplier||1);
+        var lk = lockMap[lockType] || lockMap.strike;
+        var doorNums = [];
+        (DOOR_LOCKS[type]||[]).forEach(function(l,i){ if(l===lockType) doorNums.push('Door '+(i+1)); });
+        var noteDetail = doorNums.length > 0 && doorNums.length < doorQty ? labelBase + ' (' + doorNums.join(', ') + ')' : labelBase;
+        lockItems.push({pn:lk.pn, desc:lk.desc, note:noteDetail, src:'ADI', qty:count});
+        if(lockType === 'mag'){lockItems.push({pn:'PEB-2S', desc:'Essex PEB-2S Emergency Exit Button', note:'Required with maglock — '+noteDetail, src:'ADI', qty:count});}
+      });
     }
 
-    addLockItems(qSI,lockSI,'Single interior doors');
-    addLockItems(qSE,lockSE,'Single exterior doors');
-    // double doors: both active = 2 locks per opening, one active = 1 lock
-    var idLockQty=qID*(idBoth?2:1);
-    var edLockQty=qED*(edBoth?2:1);
-    addLockItems(idLockQty,lockID,'Interior double doors'+(idBoth?' (both active)':' (one active)'));
-    addLockItems(edLockQty,lockED,'Exterior double doors'+(edBoth?' (both active)':' (one active)'));
+    addLockItemsFromMap('si', qSI, 'Single interior doors', 1);
+    addLockItemsFromMap('se', qSE, 'Single exterior doors', 1);
+    addLockItemsFromMap('id', qID, 'Interior double doors'+(idBoth?' (both active)':' (one active)'), idBoth?2:1);
+    addLockItemsFromMap('ed', qED, 'Exterior double doors'+(edBoth?' (both active)':' (one active)'), edBoth?2:1);
     if(lockItems.length)cats.push({label:'Electrified locking hardware',items:lockItems});
   }
 
-  // ── I8 BOARDS (C·CURE contact-only doors) ───────────────────────────────
-  var i8Qty = (getMfr() === 'ccure') ? getI8BoardsForBOM() : 0;
-
-  // ── DOOR HARDWARE (REX + CONTACTS + MOTION) ───────────────────────────────
+  // ── DOOR HARDWARE ─────────────────────────────────────────────────────────
   var hwItems=[];
   var readerDoorCount=qSI+qSE+qID+qED;
   if(readerDoorCount>0){
     hwItems.push({pn:'BOSCH DS160',desc:'Bosch DS160 Motion Sensor (REX)',note:'1 per opening — all single and double reader doors',src:'ADI',qty:readerDoorCount});
     hwItems.push({pn:'BOSCH TP160',desc:'Bosch TP160 Trim Plate for DS160',note:'1 per DS160',src:'ADI',qty:readerDoorCount});
-    // door contacts: singles get 1, doubles get 2
     var contactQty=(qSI+qSE)+(qID+qED)*2;
     hwItems.push({pn:'947-75WH',desc:'¾" Recessed Door Contact — 947-75WH',note:'1 per leaf — singles: 1 each, doubles: 2 per opening',src:'ADI',qty:contactQty});
   }
-  if(qDC>0){
-    hwItems.push({pn:'0E-SRFMTMG2W',desc:'Armored Surface Mount Door Contact — 0E-SRFMTMG2W',note:'Contact-only doors',src:'ADI',qty:qDC});
-  }
-  if(qOHD>0){
-    hwItems.push({pn:'0E-SRFMTOD2W',desc:'OHD Armored Surface Mount Contact — 0E-SRFMTOD2W',note:'Overhead doors',src:'ADI',qty:qOHD});
-  }
+  if(qDC>0){hwItems.push({pn:'0E-SRFMTMG2W',desc:'Armored Surface Mount Door Contact — 0E-SRFMTMG2W',note:'Contact-only doors',src:'ADI',qty:qDC});}
+  if(qOHD>0){hwItems.push({pn:'0E-SRFMTOD2W',desc:'OHD Armored Surface Mount Contact — 0E-SRFMTOD2W',note:'Overhead doors',src:'ADI',qty:qOHD});}
   if(hwItems.length)cats.push({label:'Door hardware',items:hwItems});
 
   // ── CABLE ────────────────────────────────────────────────────────────────
   var cableItems=[];
-  var compositeDoors=qSI+qSE+qID+qED; // 1 run per opening
+  var compositeDoors=qSI+qSE+qID+qED;
   if(compositeDoors>0){
-    cableItems.push({
-      pn:'4461030',
-      desc:'4-Element Composite Cable — Windy City Wire 4461030',
-      note:'250ft per opening × '+compositeDoors+' opening'+(compositeDoors>1?'s':'')+' — actual footage TBD by field survey',
-      src:'Windy City Wire',
-      qty:(compositeDoors*250)+'ft'
-    });
-    cableItems.push({pn:'',desc:'',note:'Estimated max cable: '+(compositeDoors*250).toLocaleString()+'ft ('+compositeDoors+' runs × 250ft)',src:'',qty:0,spacer:true});
+    cableItems.push({pn:'4461030',desc:'4-Element Composite Cable — Windy City Wire 4461030',note:'250ft per opening × '+compositeDoors+' opening'+(compositeDoors>1?'s':'')+' — actual footage TBD by field survey',src:'Windy City Wire',qty:(compositeDoors*250)+'ft'});
   }
   if(qDC>0||qOHD>0){
     var contactOnlyQty=qDC+qOHD;
-    cableItems.push({
-      pn:'18-04 UNS STR CMP',
-      desc:'18-04 UNS STR CMP Wht Jkt — Windy City Wire',
-      note:'250ft per door × '+contactOnlyQty+' contact-only door'+(contactOnlyQty>1?'s':'')+' — actual footage TBD',
-      src:'Windy City Wire',
-      qty:(contactOnlyQty*250)+'ft'
-    });
+    cableItems.push({pn:'18-04 UNS STR CMP',desc:'18-04 UNS STR CMP Wht Jkt — Windy City Wire',note:'250ft per door × '+contactOnlyQty+' contact-only door'+(contactOnlyQty>1?'s':'')+' — actual footage TBD',src:'Windy City Wire',qty:(contactOnlyQty*250)+'ft'});
   }
   if(qGate>0){
-    cableItems.push({
-      pn:'4461111WBT',
-      desc:'OSP Direct Burial 4-Element Composite Cable — Windy City Wire 4461111WBT',
-      note:'250ft per gate × '+qGate+' gate'+(qGate>1?'s':'')+' — OSP/direct burial rated, actual footage TBD',
-      src:'Windy City Wire',
-      qty:(qGate*250)+'ft'
-    });
+    cableItems.push({pn:'4461111WBT',desc:'OSP Direct Burial 4-Element Composite Cable — Windy City Wire 4461111WBT',note:'250ft per gate × '+qGate+' gate'+(qGate>1?'s':'')+' — OSP/direct burial rated, actual footage TBD',src:'Windy City Wire',qty:(qGate*250)+'ft'});
   }
-  if(cableItems.filter(function(c){return!c.spacer;}).length)cats.push({label:'Cable',items:cableItems.filter(function(c){return!c.spacer;})});
+  if(cableItems.length)cats.push({label:'Cable',items:cableItems});
 
   // ── CONDUIT ALLOWANCE ────────────────────────────────────────────────────
   if(doorConduit&&totalDoors>0){
-    var conduitItems=[{
-      pn:'ALLOWANCE',
-      desc:'Door conduit allowance — $75.00 per door',
-      note:'Covers conduit fit-out at each door location. Final scope TBD per door.',
-      src:'Allowance',
-      qty:totalDoors
-    }];
     notes.push('<strong>Door conduit allowance:</strong> $75 per door × '+totalDoors+' doors = <strong>$'+(totalDoors*75).toLocaleString()+' total allowance</strong> (material only — labor separate).');
-    cats.push({label:'Conduit allowance',items:conduitItems});
+    cats.push({label:'Conduit allowance',items:[{pn:'ALLOWANCE',desc:'Door conduit allowance — $75.00 per door',note:'Covers conduit fit-out at each door location. Final scope TBD per door.',src:'Allowance',qty:totalDoors}]});
   }
 
   // ── HOMERUN CONDUIT ──────────────────────────────────────────────────────
@@ -1184,34 +1153,26 @@ function generateAC(){try{
     var hrSize=val('hr-size')||'';
     var hrFeet=ival('hr-feet',0);
     var hrNotes=val('hr-notes');
-    var hrItems=[{
-      pn:'FIELD MEASURE',
-      desc:'Homerun conduit — '+hrSize+(hrFeet>0?' / '+hrFeet+'ft':''),
-      note:(hrNotes||'Estimator to verify footage and conduit size in field'),
-      src:'Allowance',
-      qty:hrFeet||1
-    }];
-    cats.push({label:'Homerun conduit (estimator to price)',items:hrItems});
+    cats.push({label:'Homerun conduit (estimator to price)',items:[{pn:'FIELD MEASURE',desc:'Homerun conduit — '+hrSize+(hrFeet>0?' / '+hrFeet+'ft':''),note:(hrNotes||'Estimator to verify footage and conduit size in field'),src:'Allowance',qty:hrFeet||1}]});
     notes.push('<strong>Homerun conduit:</strong> '+hrSize+(hrFeet>0?', '+hrFeet+'ft':'')+'. '+(hrNotes||'Estimator to price in Procore based on field conditions.'));
   }
 
-  // ── SOFTWARE ─────────────────────────────────────────────────────────────
+  // ── SOFTWARE & LICENSING ─────────────────────────────────────────────────
   if(totalReaderDoors>0){
-    var swItems=[
+    cats.push({label:'Software & licensing',items:[
       {pn:mfrLabel,desc:mfrLabel+' Base Software License',src:isDealer()?'3rd Party':'ADI',qty:1},
-      {pn:mfrLabel+' Door Lic.',desc:mfrLabel+' Per-Door License',src:isDealer()?'3rd Party':'ADI',qty:totalReaderDoors},
-    ];
-    var svr=val('new-server');
-    if(sysType==='new'&&svr==='onprem'){
-      swItems.push({pn:'SERVER',desc:'Access control application server',src:'ADI',qty:1});
-      swItems.push({pn:'WORKSTATION',desc:'Management workstation',src:'ADI',qty:1});
-    }
-    cats.push({label:'Software & licensing',items:swItems});
+      {pn:mfrLabel+' Door Lic.',desc:mfrLabel+' Per-Door License',src:isDealer()?'3rd Party':'ADI',qty:totalReaderDoors}
+    ]});
+  }
+
+  // ── SERVER & WORKSTATIONS ────────────────────────────────────────────────
+  if(sysType==='new'){
+    var svrItems = getServerBOMItems();
+    if(svrItems.length) cats.push({label:'Server & workstations',items:svrItems});
   }
 
   // ── BUILD OUTPUT ─────────────────────────────────────────────────────────
   var totalLineItems=cats.reduce(function(a,c){return a+(c.items?c.items.length:0);},0);
-  var totalUnits=cats.reduce(function(a,c){return a+(c.items?c.items.reduce(function(b,i){return b+(i.qty||0);},0):0);},0);
 
   var metaHTML='';
   var metaParts=[proj,mfrLabel,totalDoors+' total door'+(totalDoors!==1?'s':''),sysType==='existing'?'Existing system':'New system'];
@@ -1224,9 +1185,7 @@ function generateAC(){try{
   if(sysType==='existing'||isDealer()){
     var warnClass=sysType==='existing'?'alert-assess':'alert-dealer';
     var warnIcon=sysType==='existing'?'🔎':'⚠️';
-    var warnMsg=sysType==='existing'
-      ?'<strong>System Assessment Required</strong> — Do not finalize this estimate without a completed system assessment. Parts compatibility must be verified.'
-      :'<strong>Not an authorized dealer for '+mfrLabel+'</strong> — Hardware and licenses must be purchased through a 3rd party. Site License Code / Serial # required.';
+    var warnMsg=sysType==='existing'?'<strong>System Assessment Required</strong> — Do not finalize this estimate without a completed system assessment. Parts compatibility must be verified.':'<strong>Not an authorized dealer for '+mfrLabel+'</strong> — Hardware and licenses must be purchased through a 3rd party. Site License Code / Serial # required.';
     catsHTML+='<div class="alert '+warnClass+'" style="margin-bottom:1.25rem"><span class="alert-icon">'+warnIcon+'</span><span>'+warnMsg+'</span></div>';
   }
 
@@ -1235,12 +1194,7 @@ function generateAC(){try{
     catsHTML+='<div class="cat-block"><div class="cat-label">'+cat.label+'<span class="cat-count">'+cat.items.length+' item'+(cat.items.length!==1?'s':'')+'</span></div>';
     catsHTML+='<table class="bom-table"><thead><tr><th style="width:130px">Part number</th><th>Description</th><th style="width:80px">Source</th><th style="width:55px" class="right">Qty</th></tr></thead><tbody>';
     cat.items.forEach(function(item){
-      catsHTML+='<tr>'
-        +'<td class="td-pn">'+(item.pn||'—')+'</td>'
-        +'<td><div class="td-desc">'+item.desc+'</div>'+(item.note?'<div class="td-note">'+item.note+'</div>':'')+'</td>'
-        +'<td class="td-src">'+(item.src?srcTag(item.src):'')+'</td>'
-        +'<td class="td-qty">'+(item.qty||'—')+'</td>'
-        +'</tr>';
+      catsHTML+='<tr><td class="td-pn">'+(item.pn||'—')+'</td><td><div class="td-desc">'+item.desc+'</div>'+(item.note?'<div class="td-note">'+item.note+'</div>':'')+'</td><td class="td-src">'+(item.src?srcTag(item.src):'')+'</td><td class="td-qty">'+(item.qty||'—')+'</td></tr>';
     });
     catsHTML+='</tbody></table></div>';
   });
@@ -1252,18 +1206,7 @@ function generateAC(){try{
   }
 
   var conduitTotal=doorConduit?'$'+(totalDoors*75).toLocaleString():'N/A';
-
-  var html='<div class="output">'
-    +'<div class="out-topbar"><div><div class="out-title">Access Control Spec</div><div class="out-meta">'+metaHTML+'</div></div>'
-    +'<button class="print-btn" onclick="window.print()"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print / Save PDF</button></div>'
-    +catsHTML
-    +'<div class="summary-strip">'
-    +'<div class="stat-card"><div class="stat-val">'+totalDoors+'</div><div class="stat-lbl">Total doors</div></div>'
-    +'<div class="stat-card"><div class="stat-val">'+totalReaderDoors+'</div><div class="stat-lbl">Reader doors</div></div>'
-    +'<div class="stat-card"><div class="stat-val">'+totalLineItems+'</div><div class="stat-lbl">Procore line items</div></div>'
-    +'<div class="stat-card"><div class="stat-val">'+conduitTotal+'</div><div class="stat-lbl">Conduit allowance</div></div>'
-    +'</div></div>'
-    +'<button class="reset-btn" onclick="resetTool()">← Start new estimate</button>';
+  var html='<div class="output"><div class="out-topbar"><div><div class="out-title">Access Control Spec</div><div class="out-meta">'+metaHTML+'</div></div><button class="print-btn" onclick="window.print()"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print / Save PDF</button></div>'+catsHTML+'<div class="summary-strip"><div class="stat-card"><div class="stat-val">'+totalDoors+'</div><div class="stat-lbl">Total doors</div></div><div class="stat-card"><div class="stat-val">'+totalReaderDoors+'</div><div class="stat-lbl">Reader doors</div></div><div class="stat-card"><div class="stat-val">'+totalLineItems+'</div><div class="stat-lbl">Procore line items</div></div><div class="stat-card"><div class="stat-val">'+conduitTotal+'</div><div class="stat-lbl">Conduit allowance</div></div></div></div><button class="reset-btn" onclick="resetTool()">← Start new estimate</button>';
 
   var out=$('output-area');
   out.innerHTML=html;
@@ -1274,11 +1217,9 @@ function generateAC(){try{
   if(out){out.innerHTML='<div style="background:#2a0a0a;border:2px solid #E84545;border-radius:8px;padding:1.25rem;margin-top:1rem;font-family:DM Mono,monospace;font-size:13px;color:#FF8080"><strong style="color:#fff">❌ generateAC() error — copy this and send to dev:</strong><br><br>'+e.message+'<br><br><span style="font-size:11px;color:#aaa">'+String(e.stack).replace(/\n/g,"<br>")+'</span></div>';out.classList.remove('hidden');out.scrollIntoView({behavior:'smooth',block:'start'});}else{alert('generateAC error: '+e.message);}console.error('generateAC threw:',e);
 }}
 
-
 // ═══════════════════════════════════════════════════════════════════
-// HEAD-END ENGINE — PLACEHOLDER TO TRIGGER WRITE — DOM-BASED (no innerHTML rebuilds)
+// HEAD-END ENGINE
 // ═══════════════════════════════════════════════════════════════════
-
 var CCURE_PANELS = {
   unmanaged: {
     4:  { ps:'FPO75-B100C4D8E2S',       ctrl:[{pn:'GSTAR004-MB',qty:1},{pn:'RM-4',qty:2}],     label:'4-door (Unmanaged)' },
@@ -1292,16 +1233,12 @@ var CCURE_PANELS = {
   }
 };
 
-// HE_MANAGED tracks managed state per closet index
 var HE_MANAGED = {0:false, 1:false, 2:false};
-// HE_PANELS tracks panel selections per closet: {0:['none','none','none'], ...}
 var HE_PANELS  = {0:['none','none','none'], 1:['none','none','none'], 2:['none','none','none']};
-// Next closet index counter for dynamically added closets
 var HE_NEXT_IDX = 3;
 
 function setHEManaged(idx, managed, btn){
   HE_MANAGED[idx] = managed;
-  // Update pill styling
   var unmgd = $('he-unmgd-' + idx);
   var mgd   = $('he-mgd-' + idx);
   if(unmgd && mgd){
@@ -1310,7 +1247,6 @@ function setHEManaged(idx, managed, btn){
     if(managed) mgd.classList.add('active-yes');
     else unmgd.classList.add('active-yes');
   }
-  // Reset panel selections when toggling
   HE_PANELS[idx] = ['none','none','none'];
   rebuildPanelSelects(idx);
   updateCoverage(idx);
@@ -1322,48 +1258,31 @@ function goToHeadend(){
   show('view-headend');
   setStep(5);
   window.scrollTo({top:0,behavior:'smooth'});
-  // Auto-fill first closet reader doors from total-readers
   var totalRdr = ival('total-readers', 0);
   var inp = $('he-rdoors-0');
-  if(inp && (!inp.value || inp.value === '0') && totalRdr > 0){
-    inp.value = totalRdr;
-  }
-  // Render panel selects for all pre-existing closets on arrival
-  getActiveClosets().forEach(function(idx){
-    rebuildPanelSelects(idx);
-    updateCoverage(idx);
-  });
+  if(inp && (!inp.value || inp.value === '0') && totalRdr > 0){ inp.value = totalRdr; }
+  getActiveClosets().forEach(function(idx){ rebuildPanelSelects(idx); updateCoverage(idx); });
   heChanged();
   updateHeContactSummary();
 }
 
 function heChanged(){
-  // Read all closet data from DOM and update derived UI — NO innerHTML rebuilds
   getActiveClosets().forEach(function(idx){
-    // Update reader door badge
     var rdoors = parseInt(($('he-rdoors-' + idx)||{}).value) || 0;
     var badge = $('he-rbadge-' + idx);
     if(badge) badge.textContent = rdoors > 0 ? rdoors + ' doors' : '\u2014';
-
-    // Show/hide contact row (CCURE only + has contact doors)
     var crow = $('he-crow-' + idx);
     var mfrKey = getMfr();
     var qDC  = ival('qty-dc', 0);
     var qOHD = ival('qty-ohd', 0);
     if(crow) crow.style.display = (mfrKey === 'ccure' && (qDC+qOHD) > 0) ? 'flex' : 'none';
-
-    // Update contact total badge
     var cstd = parseInt(($('he-cstd-' + idx)||{}).value) || 0;
     var cohd = parseInt(($('he-cohd-' + idx)||{}).value) || 0;
     var ctotal = cstd + cohd;
     var ctBadge = $('he-ctotal-' + idx);
     if(ctBadge) ctBadge.textContent = ctotal > 0 ? ctotal + ' contact' + (ctotal>1?'s':'') : '';
-
-    // Update coverage
     updateCoverage(idx);
   });
-
-  // Update project-level contact assignment status
   updateAllContactStatus();
   checkI8HeadendWarning();
   updateHeContactSummary();
@@ -1384,16 +1303,10 @@ function rebuildPanelSelects(idx){
   var panels = HE_PANELS[idx] || ['none','none','none'];
   var rdoors = parseInt(($('he-rdoors-' + idx)||{}).value) || 0;
   var tier = managed ? CCURE_PANELS.managed : CCURE_PANELS.unmanaged;
-
-  // Calculate covered so far
-  var covered = panels.reduce(function(a,v){ return a + (parseInt(v)||0); }, 0);
   var html = '';
   for(var p = 0; p < 3; p++){
-    var panelCap = parseInt(panels[p]) || 0;
     var prevCovered = panels.slice(0,p).reduce(function(a,v){ return a+(parseInt(v)||0);},0);
-    // Show panel slot if: first slot, OR previous panels don't cover all doors yet
     if(p > 0 && prevCovered >= rdoors && rdoors > 0) break;
-
     html += '<div class="panel-row" style="margin-bottom:8px">';
     html += '<span class="panel-row-label">Panel ' + (p+1) + '</span>';
     html += '<select class="panel-sel" onchange="onPanelChange(' + idx + ',' + p + ',this.value)">';
@@ -1401,11 +1314,8 @@ function rebuildPanelSelects(idx){
     [4,8,16].forEach(function(sz){
       var cfg = tier[sz];
       var sel = panels[p] == sz ? ' selected' : '';
-      if(!cfg){
-        html += '<option value="' + sz + '" disabled style="color:#555">4-door panel \u2014 not available in managed</option>';
-      } else {
-        html += '<option value="' + sz + '"' + sel + '>' + cfg.label + ' \u2014 ' + cfg.ps + '</option>';
-      }
+      if(!cfg){ html += '<option value="' + sz + '" disabled style="color:#555">4-door panel \u2014 not available in managed</option>'; }
+      else { html += '<option value="' + sz + '"' + sel + '>' + cfg.label + ' \u2014 ' + cfg.ps + '</option>'; }
     });
     html += '</select></div>';
   }
@@ -1415,7 +1325,6 @@ function rebuildPanelSelects(idx){
 function onPanelChange(idx, panelNum, val){
   if(!HE_PANELS[idx]) HE_PANELS[idx] = ['none','none','none'];
   HE_PANELS[idx][panelNum] = val;
-  // Reset subsequent panels when earlier one changes
   for(var i = panelNum+1; i < 3; i++) HE_PANELS[idx][i] = 'none';
   rebuildPanelSelects(idx);
   updateCoverage(idx);
@@ -1428,9 +1337,7 @@ function updateCoverage(idx){
   var rdoors = parseInt(($('he-rdoors-' + idx)||{}).value) || 0;
   var panels = HE_PANELS[idx] || ['none','none','none'];
   var totalCap = panels.reduce(function(a,v){ return a+(parseInt(v)||0); }, 0);
-
   if(rdoors === 0 || totalCap === 0){ container.innerHTML = ''; return; }
-
   var msg = '';
   if(totalCap < rdoors){
     var needed = rdoors - totalCap;
@@ -1441,8 +1348,6 @@ function updateCoverage(idx){
   } else {
     msg = '<div class="coverage-bar coverage-ok">\u2713 All ' + rdoors + ' doors covered perfectly.</div>';
   }
-
-  // I8 per-closet warning
   var i8Choice = getPillVal('pg-i8');
   var cstd = parseInt(($('he-cstd-' + idx)||{}).value) || 0;
   var cohd = parseInt(($('he-cohd-' + idx)||{}).value) || 0;
@@ -1450,11 +1355,7 @@ function updateCoverage(idx){
   if(getMfr() === 'ccure' && i8Choice === 'no' && closetContacts > 0){
     var has16 = panels.some(function(sz){ return parseInt(sz) === 16; });
     var hasNon16 = panels.some(function(sz){ return sz && sz !== 'none' && parseInt(sz) !== 16; });
-    if(hasNon16 && !has16){
-      msg += '<div class="alert alert-warn" style="margin-top:6px;margin-bottom:0"><span class="alert-icon">\u26a0\ufe0f</span><span>'
-        + '<strong>I8 conflict:</strong> This closet has ' + closetContacts + ' contact-only door' + (closetContacts>1?'s':'') + ' needing I8 boards. I8 boards only install in 16-door enclosures.'
-        + '</span></div>';
-    }
+    if(hasNon16 && !has16){ msg += '<div class="alert alert-warn" style="margin-top:6px;margin-bottom:0"><span class="alert-icon">\u26a0\ufe0f</span><span><strong>I8 conflict:</strong> This closet has ' + closetContacts + ' contact-only door' + (closetContacts>1?'s':'') + ' needing I8 boards. I8 boards only install in 16-door enclosures.</span></div>'; }
   }
   container.innerHTML = msg;
 }
@@ -1465,9 +1366,7 @@ function updateAllContactStatus(){
   var totalProject = qDC + qOHD;
   if(totalProject === 0) return;
   var activeIdxs = getActiveClosets();
-  var assigned = activeIdxs.reduce(function(a, idx){
-    return a + (parseInt(($('he-cstd-'+idx)||{}).value)||0) + (parseInt(($('he-cohd-'+idx)||{}).value)||0);
-  }, 0);
+  var assigned = activeIdxs.reduce(function(a, idx){ return a + (parseInt(($('he-cstd-'+idx)||{}).value)||0) + (parseInt(($('he-cohd-'+idx)||{}).value)||0); }, 0);
   var diff = totalProject - assigned;
   activeIdxs.forEach(function(idx){
     var statusEl = $('he-cstatus-' + idx);
@@ -1482,12 +1381,8 @@ function deleteCloset(idx){
   var block = $('hec-' + idx);
   if(block){
     block.style.display = 'none';
-    // Renumber visible badges
     var n = 1;
-    getActiveClosets().forEach(function(i){
-      var badge = $('hec-' + i + ' .he-badge');
-      if(badge) badge.textContent = n++;
-    });
+    getActiveClosets().forEach(function(i){ var badge = $('hec-' + i + ' .he-badge'); if(badge) badge.textContent = n++; });
     heChanged();
   }
 }
@@ -1499,36 +1394,11 @@ function addCloset(){
   var idx = HE_NEXT_IDX_counter++;
   HE_MANAGED[idx] = false;
   HE_PANELS[idx]  = ['none','none','none'];
-
   var div = document.createElement('div');
   div.className = 'he-block';
   div.id = 'hec-' + idx;
   var n = getActiveClosets().length + 1;
-  div.innerHTML =
-    '<div class="he-header">'
-    + '<div class="he-badge">' + n + '</div>'
-    + '<input class="he-name-input" type="text" placeholder="e.g. IDF-' + n + '" value="Closet ' + n + '" oninput="heChanged()"/>'
-    + '<input class="he-door-input" type="number" min="0" placeholder="Reader doors" id="he-rdoors-' + idx + '" oninput="heChanged()"/>'
-    + '<span class="he-doors-badge" id="he-rbadge-' + idx + '">\u2014</span>'
-    + '<button class="del-btn" onclick="deleteCloset(' + idx + ')" title="Remove this closet">\u00d7</button>'
-    + '</div>'
-    + '<div class="he-contact-row" id="he-crow-' + idx + '" style="display:none">'
-    + '<span style="font-size:12px;color:var(--text3);font-weight:500;white-space:nowrap">Contact-only doors at this closet:</span>'
-    + '<label style="font-size:11px;color:var(--text3)">Standard:</label>'
-    + '<input type="number" min="0" value="0" id="he-cstd-' + idx + '" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" oninput="heChanged()"/>'
-    + '<label style="font-size:11px;color:var(--text3)">OHD:</label>'
-    + '<input type="number" min="0" value="0" id="he-cohd-' + idx + '" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" oninput="heChanged()"/>'
-    + '<span id="he-ctotal-' + idx + '" style="font-size:11px;font-weight:600;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(0,194,168,.25);padding:2px 8px;border-radius:10px"></span>'
-    + '<span id="he-cstatus-' + idx + '" style="font-size:11px;margin-left:auto"></span>'
-    + '</div>'
-    + '<div class="managed-toggle"><label>Power management:</label>'
-    + '<div class="pill-group">'
-    + '<button class="pill active-yes" data-val="no" id="he-unmgd-' + idx + '" onclick="setHEManaged(' + idx + ',false,this)">Unmanaged</button>'
-    + '<button class="pill" data-val="yes" id="he-mgd-' + idx + '" onclick="setHEManaged(' + idx + ',true,this)">Managed</button>'
-    + '</div></div>'
-    + '<div id="he-panels-' + idx + '"></div>'
-    + '<div id="he-coverage-' + idx + '"></div>';
-
+  div.innerHTML = '<div class="he-header"><div class="he-badge">' + n + '</div><input class="he-name-input" type="text" placeholder="e.g. IDF-' + n + '" value="Closet ' + n + '" oninput="heChanged()"/><input class="he-door-input" type="number" min="0" placeholder="Reader doors" id="he-rdoors-' + idx + '" oninput="heChanged()"/><span class="he-doors-badge" id="he-rbadge-' + idx + '">\u2014</span><button class="del-btn" onclick="deleteCloset(' + idx + ')" title="Remove this closet">\u00d7</button></div><div class="he-contact-row" id="he-crow-' + idx + '" style="display:none"><span style="font-size:12px;color:var(--text3);font-weight:500;white-space:nowrap">Contact-only doors at this closet:</span><label style="font-size:11px;color:var(--text3)">Standard:</label><input type="number" min="0" value="0" id="he-cstd-' + idx + '" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" oninput="heChanged()"/><label style="font-size:11px;color:var(--text3)">OHD:</label><input type="number" min="0" value="0" id="he-cohd-' + idx + '" style="width:55px;height:28px;padding:0 6px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center" oninput="heChanged()"/><span id="he-ctotal-' + idx + '" style="font-size:11px;font-weight:600;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(0,194,168,.25);padding:2px 8px;border-radius:10px"></span><span id="he-cstatus-' + idx + '" style="font-size:11px;margin-left:auto"></span></div><div class="managed-toggle"><label>Power management:</label><div class="pill-group"><button class="pill active-yes" data-val="no" id="he-unmgd-' + idx + '" onclick="setHEManaged(' + idx + ',false,this)">Unmanaged</button><button class="pill" data-val="yes" id="he-mgd-' + idx + '" onclick="setHEManaged(' + idx + ',true,this)">Managed</button></div></div><div id="he-panels-' + idx + '"></div><div id="he-coverage-' + idx + '"></div>';
   list.appendChild(div);
   heChanged();
 }
@@ -1542,40 +1412,14 @@ function checkI8HeadendWarning(){
   if((qDC + qOHD) === 0) return;
   var i8Needed = Math.ceil((qDC + qOHD) / 8);
   var enc16 = 0;
-  getActiveClosets().forEach(function(idx){
-    (HE_PANELS[idx]||[]).forEach(function(sz){ if(parseInt(sz)===16) enc16++; });
-  });
+  getActiveClosets().forEach(function(idx){ (HE_PANELS[idx]||[]).forEach(function(sz){ if(parseInt(sz)===16) enc16++; }); });
   var maxSlots = enc16 * 2;
   var warnEl = $('he-i8-warning');
   if(!warnEl) return;
   if(maxSlots < i8Needed){
     var extraEnc = Math.ceil((i8Needed - maxSlots) / 2);
-    warnEl.innerHTML = '<div class="alert alert-warn" style="margin-bottom:12px"><span class="alert-icon">\u26a0\ufe0f</span><span>'
-      + '<strong>I8 board conflict:</strong> Requires <strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + '</strong> but only <strong>' + maxSlots + ' slot' + (maxSlots!==1?'s':'') + '</strong> available. '
-      + 'Add <strong>' + extraEnc + ' more 16-door enclosure' + (extraEnc>1?'s':'') + '</strong> to your head-end configuration.'
-      + '</span></div>';
-  } else {
-    warnEl.innerHTML = '';
-  }
-}
-
-// ── Build panel BOM from HE_DATA ──────────────────────────────────
-
-function getContactAssignmentStatus(){
-  var totalContactProject = ival('qty-dc', 0) + ival('qty-ohd', 0);
-  if(totalContactProject === 0) return '';
-  var assigned = getActiveClosets().reduce(function(a,idx){
-    return a + (parseInt(($('he-cstd-'+idx)||{}).value)||0) + (parseInt(($('he-cohd-'+idx)||{}).value)||0);
-  }, 0);
-  var diff = totalContactProject - assigned;
-  if(diff > 0){
-    return '<span style="font-size:11px;color:var(--amber);margin-left:auto">'
-      + diff + ' contact door' + (diff>1?'s':'') + ' unassigned across closets</span>';
-  } else if(diff < 0){
-    return '<span style="font-size:11px;color:var(--red);margin-left:auto">'
-      + 'Over-assigned by ' + Math.abs(diff) + ' — exceeds project total</span>';
-  }
-  return '<span style="font-size:11px;color:var(--teal);margin-left:auto">✓ All contacts assigned</span>';
+    warnEl.innerHTML = '<div class="alert alert-warn" style="margin-bottom:12px"><span class="alert-icon">\u26a0\ufe0f</span><span><strong>I8 board conflict:</strong> Requires <strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + '</strong> but only <strong>' + maxSlots + ' slot' + (maxSlots!==1?'s':'') + '</strong> available. Add <strong>' + extraEnc + ' more 16-door enclosure' + (extraEnc>1?'s':'') + '</strong> to your head-end configuration.</span></div>';
+  } else { warnEl.innerHTML = ''; }
 }
 
 function buildPanelBOM(mfrKey) {
@@ -1584,7 +1428,6 @@ function buildPanelBOM(mfrKey) {
     items.push({ pn: '—', desc: 'Access control panel — see manufacturer spec', note: 'Panel configuration for ' + getMfrLabel() + ' — specify per head-end', src: isDealer() ? '3rd Party' : 'ADI', qty: 1 });
     return items;
   }
-
   getActiveClosets().forEach(function(idx) {
     var rdoors = parseInt(($('he-rdoors-'+idx)||{}).value) || 0;
     if(rdoors === 0) return;
@@ -1593,31 +1436,15 @@ function buildPanelBOM(mfrKey) {
     var nameEl = $('hec-' + idx + ' .he-name-input');
     var heName = (nameEl && nameEl.value) ? nameEl.value : ('Closet ' + (idx+1));
     var panels = HE_PANELS[idx] || ['none','none','none'];
-
     panels.forEach(function(sz, pi) {
       if (!sz || sz === 'none') return;
       var size = parseInt(sz);
       var cfg = tier[size];
       if (!cfg) return;
-      items.push({
-        pn: cfg.ps,
-        desc: 'LifeSafety Power ' + cfg.ps + ' — ' + size + '-door ' + (mgd ? 'Managed' : 'Unmanaged') + ' Enclosure',
-        note: heName + ' · Panel ' + (pi+1),
-        src: 'ADI',
-        qty: 1
-      });
-      cfg.ctrl.forEach(function(ctrl) {
-        items.push({
-          pn: ctrl.pn,
-          desc: 'Software House ' + ctrl.pn,
-          note: heName + ' · Panel ' + (pi+1),
-          src: 'ADI',
-          qty: ctrl.qty
-        });
-      });
+      items.push({ pn: cfg.ps, desc: 'LifeSafety Power ' + cfg.ps + ' — ' + size + '-door ' + (mgd ? 'Managed' : 'Unmanaged') + ' Enclosure', note: heName, src: 'ADI', qty: 1 });
+      cfg.ctrl.forEach(function(ctrl) { items.push({ pn: ctrl.pn, desc: 'Software House ' + ctrl.pn, note: heName, src: 'ADI', qty: ctrl.qty }); });
     });
   });
-
   return items;
 }
 
@@ -1630,44 +1457,22 @@ function getHESummaryNote() {
     var mgd = HE_MANAGED[idx] || false;
     var nameEl = $('hec-' + idx + ' .he-name-input');
     var name = (nameEl && nameEl.value) ? nameEl.value : ('Closet '+(idx+1));
-    var status = cap >= rdoors ? '✓' : '⚠';
-    parts.push(status + ' ' + name + ': ' + rdoors + ' doors / ' + cap + ' port capacity (' + (mgd ? 'Managed' : 'Unmanaged') + ')');
+    parts.push((cap >= rdoors ? '✓' : '⚠') + ' ' + name + ': ' + rdoors + ' doors / ' + cap + ' port capacity (' + (mgd ? 'Managed' : 'Unmanaged') + ')');
   });
   return parts.join(' &nbsp;|&nbsp; ');
 }
 
+function backToTrade(){ hide('view-system');show('view-trade');setStep(1);window.scrollTo({top:0,behavior:'smooth'}); }
+function backToSystem(){ hide('view-scope');show('view-system');setStep(2);window.scrollTo({top:0,behavior:'smooth'}); }
+function backToScope(){ hide('view-doors');show('view-scope');setStep(3);window.scrollTo({top:0,behavior:'smooth'}); }
+function backToDoors(){ hide('view-headend');show('view-doors');setStep(4);window.scrollTo({top:0,behavior:'smooth'}); }
 
-function backToTrade(){
-  hide('view-system');show('view-trade');setStep(1);
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function backToSystem(){
-  hide('view-scope');show('view-system');setStep(2);
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function backToScope(){
-  hide('view-doors');show('view-scope');setStep(3);
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function backToDoors(){
-  hide('view-headend');show('view-doors');setStep(4);
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-
-// ── I8 BOARD LOGIC ────────────────────────────────────────────────────────
 function checkI8Card(){
   var mfrKey = getMfr();
   var qDC  = ival('qty-dc', 0);
   var qOHD = ival('qty-ohd', 0);
-  var hasContacts = (qDC + qOHD) > 0;
-  var isCCure = (mfrKey === 'ccure');
-  if(hasContacts && isCCure){
-    show('i8-card');
-  } else {
-    hide('i8-card');
-    hide('i8-result');
-  }
+  if((qDC + qOHD) > 0 && mfrKey === 'ccure'){ show('i8-card'); }
+  else { hide('i8-card'); hide('i8-result'); }
 }
 
 function onI8Change(){
@@ -1677,60 +1482,168 @@ function onI8Change(){
   var totalContacts = qDC + qOHD;
   var i8Needed = Math.ceil(totalContacts / 8);
   var resultDiv = $('i8-result');
-
   if(choice === 'yes'){
     resultDiv.innerHTML = '<div class="alert alert-info mb0"><span class="alert-icon">✓</span><span>Open ACM inputs will be used — no I8 boards needed. Verify available inputs with your panel config.</span></div>';
     show('i8-result');
   } else if(choice === 'no'){
     var enc16 = 0;
-    getActiveClosets().forEach(function(ci){
-      (HE_PANELS[ci]||[]).forEach(function(sz){ if(parseInt(sz)===16) enc16++; });
-    });
+    getActiveClosets().forEach(function(ci){ (HE_PANELS[ci]||[]).forEach(function(sz){ if(parseInt(sz)===16) enc16++; }); });
     var maxI8Slots = enc16 * 2;
-    var ok = i8Needed <= maxI8Slots;
     var msg = '';
-    if(enc16 === 0){
-      msg = '<div class="alert alert-warn mb0"><span class="alert-icon">⚠️</span><span>'
-          + '<strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + ' needed</strong> for ' + totalContacts + ' contact-only door' + (totalContacts>1?'s':'') + ' (' + totalContacts + ' / 8 = ' + i8Needed + ' board'+(i8Needed>1?'s':'')+').'
-          + ' <strong>Note:</strong> I8 boards only install in 16-door enclosures (max 2 per enclosure). Make sure your head-end config includes at least one 16-door enclosure.'
-          + '</span></div>';
-    } else if(!ok){
-      var shortage = i8Needed - maxI8Slots;
-      msg = '<div class="alert alert-warn mb0"><span class="alert-icon">⚠️</span><span>'
-          + '<strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + ' needed</strong> but only <strong>' + maxI8Slots + ' slot' + (maxI8Slots>1?'s':'') + ' available</strong> across ' + enc16 + ' × 16-door enclosure' + (enc16>1?'s':'') + '.'
-          + ' You need <strong>' + Math.ceil(shortage/2) + ' more 16-door enclosure' + (Math.ceil(shortage/2)>1?'s':'') + '</strong> to accommodate the additional I8 boards. Go back to head-end config and add them.'
-          + '</span></div>';
-    } else {
-      var spare = maxI8Slots - i8Needed;
-      msg = '<div class="alert coverage-ok" style="border-radius:var(--radius);padding:10px 14px;border:1px solid rgba(0,194,168,.3)">'
-          + '✓ <strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + '</strong> needed for ' + totalContacts + ' contacts — fits in your ' + enc16 + ' × 16-door enclosure' + (enc16>1?'s':'') + ' (' + spare + ' slot' + (spare>1?'s':'') + ' remaining).'
-          + '</div>';
-    }
+    if(enc16 === 0){ msg = '<div class="alert alert-warn mb0"><span class="alert-icon">⚠️</span><span><strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + ' needed</strong> for ' + totalContacts + ' contact-only door' + (totalContacts>1?'s':'') + '. <strong>Note:</strong> I8 boards only install in 16-door enclosures (max 2 per enclosure).</span></div>'; }
+    else if(i8Needed > maxI8Slots){ var shortage = i8Needed - maxI8Slots; msg = '<div class="alert alert-warn mb0"><span class="alert-icon">⚠️</span><span><strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + ' needed</strong> but only <strong>' + maxI8Slots + ' slot' + (maxI8Slots>1?'s':'') + ' available</strong>. You need <strong>' + Math.ceil(shortage/2) + ' more 16-door enclosure' + (Math.ceil(shortage/2)>1?'s':'') + '</strong>.</span></div>'; }
+    else { var spare = maxI8Slots - i8Needed; msg = '<div class="alert coverage-ok" style="border-radius:var(--radius);padding:10px 14px;border:1px solid rgba(0,194,168,.3)">✓ <strong>' + i8Needed + ' I8 board' + (i8Needed>1?'s':'') + '</strong> needed — fits in your ' + enc16 + ' × 16-door enclosure' + (enc16>1?'s':'') + ' (' + spare + ' slot' + (spare>1?'s':'') + ' remaining).</div>'; }
     resultDiv.innerHTML = msg;
     show('i8-result');
-  } else {
-    hide('i8-result');
-  }
+  } else { hide('i8-result'); }
 }
 
 function getI8BoardsForBOM(){
   var choice = getPillVal('pg-i8');
   if(choice !== 'no') return 0;
-  var qDC  = ival('qty-dc', 0);
-  var qOHD = ival('qty-ohd', 0);
-  return Math.ceil((qDC + qOHD) / 8);
+  return Math.ceil((ival('qty-dc', 0) + ival('qty-ohd', 0)) / 8);
 }
-
-
 
 function resetTool(){
   $('output-area').classList.add('hidden');
   $('output-area').innerHTML='';
-  // Hide all step views
   ['view-headend','view-doors','view-scope','view-system'].forEach(hide);
   show('view-trade');
   setStep(1);
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── DOOR LOCK ROWS ────────────────────────────────────────────────────────
+var DOOR_LOCKS = {si:[], se:[], id:[], ed:[]};
+var LOCK_TYPES = [
+  {value:'strike', label:'Electric Strike — HES-4500-12/24-630'},
+  {value:'rim',    label:'RIM Strike — HES-9400-12/24-630'},
+  {value:'mag',    label:'Maglock — AC-600LB'}
+];
+var DOOR_TYPE_LABELS = {si:'Single Interior Door',se:'Single Exterior Door',id:'Interior Double Door — Opening',ed:'Exterior Double Door — Opening'};
+
+function buildDoorLockRows(type){
+  var container = $('door-lock-rows-' + type);
+  if(!container) return;
+  var qty = ival('qty-' + type, 0);
+  if(qty === 0){ container.innerHTML = ''; return; }
+  if(!DOOR_LOCKS[type]) DOOR_LOCKS[type] = [];
+  while(DOOR_LOCKS[type].length < qty) DOOR_LOCKS[type].push('strike');
+  DOOR_LOCKS[type] = DOOR_LOCKS[type].slice(0, qty);
+  var html = '';
+  for(var i = 0; i < qty; i++){
+    var label = DOOR_TYPE_LABELS[type] + (qty > 1 ? ' ' + (i+1) : '');
+    var selVal = DOOR_LOCKS[type][i] || 'strike';
+    html += '<div style="background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px">';
+    html += '<div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px">' + label + '</div>';
+    html += '<select data-dtype="' + type + '" data-didx="' + i + '" style="width:100%;height:34px;padding:0 10px;background:var(--navy2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:13px" onchange="onDoorLockChange(this.dataset.dtype,parseInt(this.dataset.didx),this.value)">';
+    LOCK_TYPES.forEach(function(lt){ html += '<option value="' + lt.value + '"' + (selVal === lt.value ? ' selected' : '') + '>' + lt.label + '</option>'; });
+    html += '</select>';
+    if(selVal === 'mag'){ html += '<div style="margin-top:6px;padding:6px 10px;background:var(--blue-dim);border:1px solid rgba(26,111,232,.3);border-radius:var(--radius);font-size:11px;color:#7BADFF">🚪 Maglock — Essex PEB-2S Emergency Exit Button will be added.</div>'; }
+    html += '</div>';
+  }
+  container.innerHTML = html;
+}
+
+function onDoorLockChange(type, idx, value){
+  if(!DOOR_LOCKS[type]) DOOR_LOCKS[type] = [];
+  DOOR_LOCKS[type][idx] = value;
+  buildDoorLockRows(type);
+}
+
+function getDoorLockSummary(type){
+  var counts = {};
+  (DOOR_LOCKS[type]||[]).forEach(function(l){ counts[l] = (counts[l]||0) + 1; });
+  return counts;
+}
+
+// ── SERVER & WORKSTATION LOGIC ────────────────────────────────────────────
+function onServerPrefChange(){
+  var v = val('new-server');
+  if(v === 'onprem') show('server-questions');
+  else hide('server-questions');
+}
+
+function onSvrWhoChange(){
+  var v = getPillVal('pg-svr-who');
+  if(v === 'customer'){ show('cust-svr-block'); hide('tusco-svr-block'); }
+  else if(v === 'tusco'){ hide('cust-svr-block'); show('tusco-svr-block'); }
+  else { hide('cust-svr-block'); hide('tusco-svr-block'); }
+}
+
+function onSvrTypeChange(){
+  if(getPillVal('pg-svr-type') === 'vm') show('vm-block');
+  else hide('vm-block');
+}
+
+function onClientTypeChange(){
+  var v = getPillVal('pg-client-type');
+  if(v === 'thick'){ show('thick-client-block'); hide('web-client-note'); }
+  else if(v === 'web'){ hide('thick-client-block'); show('web-client-note'); }
+  else { hide('thick-client-block'); hide('web-client-note'); }
+}
+
+function onTuscoPCChange(){
+  if(getPillVal('pg-tusco-pc') === 'yes') show('pc-qty-block');
+  else hide('pc-qty-block');
+}
+
+function onPCQtyChange(){
+  var qty = ival('pc-qty', 1);
+  var container = $('pc-rows-container');
+  if(!container) return;
+  if(qty <= 1){ hide('pc-rows-container'); container.innerHTML = ''; return; }
+  show('pc-rows-container');
+  var html = '<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Workstation details</div>';
+  for(var i = 0; i < qty; i++){
+    html += '<div style="background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px">';
+    html += '<div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px">Workstation ' + (i+1) + '</div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 80px 120px;gap:8px">';
+    html += '<div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">Location</div><input type="text" id="pc-loc-' + i + '" placeholder="e.g. Security Office" style="width:100%;height:32px;padding:0 8px;background:var(--navy2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px"/></div>';
+    html += '<div><div style="font-size:11px;color:var(--text3);margin-bottom:4px"># Monitors</div><input type="number" id="pc-mon-qty-' + i + '" min="1" value="1" style="width:100%;height:32px;padding:0 8px;background:var(--navy2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;text-align:center"/></div>';
+    html += '<div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">Monitor size</div><select id="pc-mon-size-' + i + '" style="width:100%;height:32px;padding:0 8px;background:var(--navy2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px"><option>24"</option><option>27"</option><option>32"</option><option>34" ultrawide</option><option>TBD</option></select></div>';
+    html += '</div></div>';
+  }
+  container.innerHTML = html;
+}
+
+function getServerBOMItems(){
+  var items = [];
+  if(val('new-server') !== 'onprem') return items;
+  var svrWho = getPillVal('pg-svr-who');
+  var svrType = getPillVal('pg-svr-type');
+  var hypervisor = getPillVal('pg-hypervisor');
+  var clientType = getPillVal('pg-client-type');
+  var tuscoPCs = getPillVal('pg-tusco-pc');
+  var pcQty = ival('pc-qty', 1);
+
+  if(svrWho === 'tusco'){
+    items.push({pn:'SVR-PLACEHOLDER',desc:'Site Application Server — TO BE SPECIFIED',note:'Tusco-provided server. Confirm spec with engineer before ordering.',src:'ADI',qty:1});
+  } else if(svrWho === 'customer'){
+    var svrNote = svrType === 'physical' ? 'Customer-provided physical server.' : svrType === 'vm' ? 'Customer-provided VM — Hypervisor: ' + (hypervisor === 'hyperv' ? 'Hyper-V' : hypervisor === 'vmware' ? 'VMware' : 'TBD') + '. Confirm VM resource requirements with engineer.' : 'Customer-provided server — type TBD.';
+    items.push({pn:'—',desc:'Server — Customer Provided',note:svrNote,src:'—',qty:1});
+  }
+
+  if(clientType === 'thick' && tuscoPCs === 'yes'){
+    var pcNote = '';
+    if(pcQty > 1){
+      var locs = [];
+      for(var i=0; i<pcQty; i++){
+        var loc = (($('pc-loc-'+i)||{}).value||('WS '+(i+1)));
+        var mQty = ival('pc-mon-qty-'+i,1);
+        var mSize = (($('pc-mon-size-'+i)||{}).value||'24"');
+        locs.push(loc + ' — ' + mQty + '\u00d7 ' + mSize);
+      }
+      pcNote = locs.join(' | ');
+    }
+    items.push({pn:'WS-PLACEHOLDER',desc:'Client Workstation — PC, Monitor(s), Keyboard, Mouse',note:pcNote||'1 workstation — confirm spec with engineer',src:'ADI',qty:pcQty});
+  } else if(clientType === 'thick' && tuscoPCs === 'no'){
+    items.push({pn:'—',desc:'Client Workstation — Customer Provided',note:'Thick client software install required on customer hardware.',src:'—',qty:1});
+  } else if(clientType === 'web'){
+    items.push({pn:'—',desc:'Web Client Access — No PC Hardware Required',note:'Browser-based access — no workstation hardware needed.',src:'—',qty:1});
+  }
+
+  return items;
 }
 </script>
 </body>
