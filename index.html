@@ -47,7 +47,7 @@ body{min-height:100vh}
 .step-sep{width:20px;height:1px;background:var(--border);flex-shrink:0}
 
 /* TRADE CARDS */
-.trade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:2rem}
+.trade-grid{display:grid;grid-template-columns:repeat(1,1fr);gap:12px;margin-bottom:2rem;max-width:280px}
 .trade-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem 1rem;cursor:pointer;text-align:center;transition:all .2s;position:relative;overflow:hidden}
 .trade-card:hover{border-color:var(--border2);transform:translateY(-1px)}
 .trade-card.active{border-color:var(--blue);background:rgba(26,111,232,.1)}
@@ -140,6 +140,7 @@ body{min-height:100vh}
 .src-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600}
 .src-adi{background:rgba(26,111,232,.15);color:#7BADFF;border:1px solid rgba(26,111,232,.25)}
 .src-wcw{background:rgba(0,194,168,.12);color:var(--teal);border:1px solid rgba(0,194,168,.25)}
+.src-swh{background:rgba(139,92,246,.15);color:#a78bfa;border:1px solid rgba(139,92,246,.3)}
 .src-hid{background:rgba(245,166,35,.12);color:#F5C842;border:1px solid rgba(245,166,35,.25)}
 .src-3p{background:rgba(232,69,69,.12);color:#FF8080;border:1px solid rgba(232,69,69,.25)}
 .src-allow{background:rgba(255,255,255,.06);color:var(--text2);border:1px solid var(--border2)}
@@ -265,16 +266,7 @@ body{min-height:100vh}
       <div class="trade-label">Access Control</div>
       <div class="trade-sub">Doors, readers, panels, software</div>
     </div>
-    <div class="trade-card" onclick="selectTrade('cctv',this)">
-      <div class="trade-icon cctv">📷</div>
-      <div class="trade-label">CCTV / Video</div>
-      <div class="trade-sub">Cameras, NVRs, VMS licensing</div>
-    </div>
-    <div class="trade-card" onclick="selectTrade('cable',this)">
-      <div class="trade-icon cable">🔌</div>
-      <div class="trade-label">Structured Cabling</div>
-      <div class="trade-sub">Cat6, fiber, racks, switches</div>
-    </div>
+
   </div>
 </div>
 
@@ -345,15 +337,7 @@ body{min-height:100vh}
         <div class="field">
           <label>Manufacturer preference</label>
           <select id="new-mfr" onchange="onNewMfr()">
-            <option value="">No preference / TBD</option>
             <option value="ccure">C·CURE 9000 (Software House)</option>
-            <option value="avigilon">Avigilon ACM</option>
-            <option value="hanwha">Hanwha OnCafe</option>
-            <option value="lenel_og">Lenel OnGuard</option>
-            <option value="lenel_s2">Lenel S2</option>
-            <option value="genetec">Genetec</option>
-            <option value="milestone">Milestone</option>
-            <option value="other">Other</option>
           </select>
         </div>
       </div>
@@ -526,7 +510,7 @@ body{min-height:100vh}
 <div id="view-headend" class="hidden">
   <div class="card">
     <div class="card-title">Head-end / panel configuration</div>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Enter reader door count, contact-only doors, and select panels for each head-end location. Delete any closets you don't need, or add more below.</p>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Enter reader door count, contact-only doors, and select panels for each head-end location. For gate-only projects, leave reader door counts at 0 and proceed to Generate.</p>
     <div id="he-contact-summary" style="display:none;margin-bottom:14px">
       <div class="alert alert-info mb0" id="he-contact-alert">
         <span class="alert-icon">ℹ️</span>
@@ -753,160 +737,11 @@ body{min-height:100vh}
   </div>
 
   <!-- VEHICLE GATES -->
-  <div class="card">
+  <div class="card" id="gate-card">
     <div class="card-title">Vehicle gates with card reader</div>
-    <div class="door-type-block" id="dtb-gate">
-      <div class="door-type-header" id="dth-gate">
-        <div><div class="door-type-label">Vehicle Gate</div><div class="door-type-sub">OSP-rated direct burial cable — HID MaxiProx 5375 long range reader</div></div>
-        <input type="number" class="door-qty-input" id="qty-gate" min="0" value="0" onchange="onDoorQty('gate')"/>
-      </div>
-      <div class="door-sub-q hidden" id="sub-gate">
-        <div class="fg2">
-          <div class="field">
-            <div class="sub-label">Are we providing pedestals?</div>
-            <div class="pill-group" id="pg-ped">
-              <button class="pill" onclick="setPill('pg-ped','yes',this);showPedestalType(true)">Yes</button>
-              <button class="pill" onclick="setPill('pg-ped','no',this);showPedestalType(false)">No</button>
-            </div>
-          </div>
-          <div class="field" id="ped-type-field" style="display:none">
-            <div class="sub-label">Pedestal type</div>
-            <select id="ped-type" onchange="onPedTypeChange()">
-              <option value="single">Single vehicle pedestal</option>
-              <option value="double">Double vehicle pedestal</option>
-            </select>
-          </div>
-        </div>
-        <!-- Single pedestal reader + housing + intercom -->
-        <div id="gate-reader-single-block" class="mt8">
-          <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px">Single pedestal configuration</div>
-          <div class="fg3" style="align-items:start">
-            <div class="field">
-              <div class="sub-label">Reader type</div>
-              <select id="gate-reader" onchange="checkPedCompat('single')">
-                <option value="standard">Standard card reader — HID 40NKS-00-000000</option>
-                <option value="keypad">Card reader with keypad</option>
-                <option value="lr">Long range reader — HID MaxiProx 5375</option>
-              </select>
-            </div>
-            <div class="field">
-              <div class="sub-label">Housing</div>
-              <select id="ped-housing-single" onchange="checkPedCompat('single')">
-                <option value="">— Select Housing —</option>
-                <option value="8x8poly">8 x 8 Polycarbonate</option>
-                <option value="14x14poly">14 x 14 Polycarbonate</option>
-                <option value="20x14poly">20 x 14 Polycarbonate</option>
-                <option value="custom">Custom Housing</option>
-              </select>
-            </div>
-            <div class="field">
-              <div class="sub-label">Intercom?</div>
-              <select id="gate-intercom-single" onchange="checkPedCompat('single')">
-                <option value="none">No intercom</option>
-                <option value="audio">Audio intercom</option>
-                <option value="video">Video intercom</option>
-              </select>
-            </div>
-          </div>
-          <div id="ped-single-custom" style="display:none" class="mt8">
-            <div class="fg2">
-              <div class="field"><div class="sub-label">Custom housing part #</div><input type="text" id="ped-housing-single-pn" placeholder="e.g. ABC-12345"/></div>
-              <div class="field"><div class="sub-label">Manufacturer</div><input type="text" id="ped-housing-single-mfr" placeholder="e.g. Winfield"/></div>
-            </div>
-          </div>
-          <div id="ped-single-compat" class="mt8"></div>
-        </div>
-
-        <!-- Double pedestal — per-position rows -->
-        <div id="gate-reader-double-block" style="display:none" class="mt8">
-          <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:10px">Double pedestal — configure each position</div>
-
-          <!-- Lower position -->
-          <div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px">
-            <div style="font-size:11px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Lower position</div>
-            <div class="fg3" style="align-items:start">
-              <div class="field">
-                <div class="sub-label">Reader type</div>
-                <select id="gate-reader-lower" onchange="checkPedCompat('lower')">
-                  <option value="standard">Standard card reader — HID 40NKS-00-000000</option>
-                  <option value="keypad">Card reader with keypad</option>
-                  <option value="lr">Long range reader — HID MaxiProx 5375</option>
-                </select>
-              </div>
-              <div class="field">
-                <div class="sub-label">Housing</div>
-                <select id="ped-housing-lower" onchange="checkPedCompat('lower')">
-                  <option value="">— Select Housing —</option>
-                  <option value="8x8poly">8 x 8 Polycarbonate</option>
-                  <option value="14x14poly">14 x 14 Polycarbonate</option>
-                  <option value="20x14poly">20 x 14 Polycarbonate</option>
-                  <option value="custom">Custom Housing</option>
-                </select>
-              </div>
-              <div class="field">
-                <div class="sub-label">Intercom?</div>
-                <select id="gate-intercom-lower" onchange="checkPedCompat('lower')">
-                  <option value="none">No intercom</option>
-                  <option value="audio">Audio intercom</option>
-                  <option value="video">Video intercom</option>
-                </select>
-              </div>
-            </div>
-            <div id="ped-lower-custom" style="display:none" class="mt8">
-              <div class="fg2">
-                <div class="field"><div class="sub-label">Custom housing part #</div><input type="text" id="ped-housing-lower-pn" placeholder="e.g. ABC-12345"/></div>
-                <div class="field"><div class="sub-label">Manufacturer</div><input type="text" id="ped-housing-lower-mfr" placeholder="e.g. Winfield"/></div>
-              </div>
-            </div>
-            <div id="ped-lower-compat" class="mt8"></div>
-          </div>
-
-          <!-- Upper position -->
-          <div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px">
-            <div style="font-size:11px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Upper position</div>
-            <div class="fg3" style="align-items:start">
-              <div class="field">
-                <div class="sub-label">Reader type</div>
-                <select id="gate-reader-upper" onchange="checkPedCompat('upper')">
-                  <option value="standard">Standard card reader — HID 40NKS-00-000000</option>
-                  <option value="keypad">Card reader with keypad</option>
-                  <option value="lr">Long range reader — HID MaxiProx 5375</option>
-                </select>
-              </div>
-              <div class="field">
-                <div class="sub-label">Housing</div>
-                <select id="ped-housing-upper" onchange="checkPedCompat('upper')">
-                  <option value="">— Select Housing —</option>
-                  <option value="8x8poly">8 x 8 Polycarbonate</option>
-                  <option value="14x14poly">14 x 14 Polycarbonate</option>
-                  <option value="20x14poly">20 x 14 Polycarbonate</option>
-                  <option value="custom">Custom Housing</option>
-                </select>
-              </div>
-              <div class="field">
-                <div class="sub-label">Intercom?</div>
-                <select id="gate-intercom-upper" onchange="checkPedCompat('upper')">
-                  <option value="none">No intercom</option>
-                  <option value="audio">Audio intercom</option>
-                  <option value="video">Video intercom</option>
-                </select>
-              </div>
-            </div>
-            <div id="ped-upper-custom" style="display:none" class="mt8">
-              <div class="fg2">
-                <div class="field"><div class="sub-label">Custom housing part #</div><input type="text" id="ped-housing-upper-pn" placeholder="e.g. ABC-12345"/></div>
-                <div class="field"><div class="sub-label">Manufacturer</div><input type="text" id="ped-housing-upper-mfr" placeholder="e.g. Winfield"/></div>
-              </div>
-            </div>
-            <div id="ped-upper-compat" class="mt8"></div>
-          </div>
-        </div>
-      </div>
-
-        <!-- Per-lane location/type rows — built dynamically -->
-        <div id="gate-lane-rows" class="mt8"></div>
-      </div>
-    </div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Add each gate location separately. Each location can have multiple lanes — configure lane direction, free exit, pedestal, reader, housing and intercom independently.</p>
+    <div id="gate-locations-list"></div>
+    <button id="add-gate-btn" onclick="addGateLocation()" style="width:100%;background:none;border:1px dashed var(--border2);border-radius:var(--radius);padding:10px;font-size:13px;font-weight:500;color:var(--blue-lt);cursor:pointer;font-family:DM Sans,sans-serif;transition:background .15s">+ Add vehicle gate location</button>
   </div>
 
   <div class="gen-wrap">
@@ -915,7 +750,7 @@ body{min-height:100vh}
       <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       Continue to head-end setup
     </button>
-    <span class="gen-hint">Configure panels based on your door counts</span>
+    <span class="gen-hint" id="headend-hint">You can proceed with 0 reader doors for gate-only projects</span>
   </div>
 
 </div><!-- /view-doors -->
@@ -926,7 +761,7 @@ body{min-height:100vh}
 </div><!-- /page -->
 
 <script>
-var S={trade:null,sysType:null,existingPlatform:null,newMfr:null};
+var S={trade:null,sysType:null,existingPlatform:null,newMfr:'ccure'};
 function $(id){return document.getElementById(id)}
 function show(id){$(id)&&$(id).classList.remove('hidden')}
 function hide(id){$(id)&&$(id).classList.add('hidden')}
@@ -1056,6 +891,8 @@ function updateHeContactSummary(){
 function goToDoors(){
   hide('view-scope');show('view-doors');setStep(4);
   window.scrollTo({top:0,behavior:'smooth'});
+  var hint=$('headend-hint');
+  if(hint) hint.textContent='You can proceed with 0 reader doors for gate-only projects';
 }
 
 // STEP 4 — door logic
@@ -1114,7 +951,7 @@ function isDealer(){
 }
 
 function srcTag(src){
-  var cls={ADI:'src-adi','Windy City Wire':'src-wcw','HID':'src-hid','3rd Party':'src-3p','Allowance':'src-allow'};
+  var cls={ADI:'src-adi','Windy City Wire':'src-wcw','HID':'src-hid','3rd Party':'src-3p','Allowance':'src-allow','Software House':'src-swh'};
   return'<span class="src-tag '+(cls[src]||'src-allow')+'">'+src+'</span>';
 }
 
@@ -1161,6 +998,9 @@ function generateAC(){try{
   var notes=[];
 
   // ── SYSTEM NOTES ──────────────────────────────────────────────────────────
+  if(qGate>0&&totalReaderDoors===0){
+    notes.push('<strong>Gate-only project:</strong> No door readers or panels — all access control is at vehicle gates only.');
+  }
   if(sysType==='existing'){
     var serial=val('existing-serial');
     notes.push('<strong>Existing System:</strong> A system assessment is required before finalizing this estimate to verify parts compatibility.');
@@ -1296,13 +1136,27 @@ function generateAC(){try{
     });
   }
   if(qGate>0){
-    cableItems.push({
-      pn:'4461111WBT',
-      desc:'OSP Direct Burial 4-Element Composite Cable — Windy City Wire 4461111WBT',
-      note:'250ft per gate × '+qGate+' gate'+(qGate>1?'s':'')+' — OSP/direct burial rated, actual footage TBD',
-      src:'Windy City Wire',
-      qty:(qGate*250)+'ft'
-    });
+    var totalGateLanes = qGate;
+    var gateIntercomCount = 0;
+    var gateExtraReaders = 0;
+    if(typeof GATE_LOCATIONS !== 'undefined'){
+      GATE_LOCATIONS.forEach(function(loc){
+        loc.lanes.forEach(function(lane){
+          if(lane.pedestal === 'no'){
+            if(lane.single && lane.single.intercom !== 'none') gateIntercomCount++;
+          } else if(lane.pedType === 'single'){
+            if(lane.single && lane.single.intercom !== 'none') gateIntercomCount++;
+          } else {
+            if(lane.lower && lane.lower.intercom !== 'none') gateIntercomCount++;
+            if(lane.upper && lane.upper.intercom !== 'none') gateIntercomCount++;
+            gateExtraReaders++;
+          }
+        });
+      });
+    }
+    cableItems.push({pn:'4461111WBT',desc:'OSP Direct Burial 4-Element Composite — Windy City Wire 4461111WBT',note:'250ft per lane × '+totalGateLanes+' lane'+(totalGateLanes>1?'s':'')+' — primary reader run, actual footage TBD',src:'Windy City Wire',qty:(totalGateLanes*250)+'ft'});
+    if(gateExtraReaders>0) cableItems.push({pn:'416400WBT',desc:'4-Element Composite Cable — Windy City Wire 416400WBT',note:'250ft per additional reader × '+gateExtraReaders+' — 2nd reader on double pedestal lanes',src:'Windy City Wire',qty:(gateExtraReaders*250)+'ft'});
+    if(gateIntercomCount>0) cableItems.push({pn:'CAT6DB-BLK',desc:'CAT6 Direct Burial — CAT6DB-BLK',note:'Up to 250ft per intercom × '+gateIntercomCount+' intercom'+(gateIntercomCount>1?'s':''),src:'Windy City Wire',qty:(gateIntercomCount*250)+'ft'});
   }
   if(cableItems.filter(function(c){return!c.spacer;}).length)cats.push({label:'Cable',items:cableItems.filter(function(c){return!c.spacer;})});
 
@@ -1749,11 +1603,11 @@ function buildPanelBOM(mfrKey) {
       });
       cfg.ctrl.forEach(function(ctrl) {
         items.push({
-          pn: ctrl.pn,
-          desc: 'Software House ' + ctrl.pn,
-          note: heName,
-          src: 'ADI',
-          qty: ctrl.qty
+        pn: ctrl.pn,
+        desc: 'Software House ' + ctrl.pn,
+        note: heName,
+        src: 'Software House',
+        qty: ctrl.qty
         });
       });
     });
@@ -2208,6 +2062,362 @@ function getServerBOMItems(){
 
   return items;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GATE LOCATION SYSTEM — DOM-based, no string escaping issues
+// ═══════════════════════════════════════════════════════════════════════════
+var GATE_LOCATIONS = [];
+var GATE_LOC_COUNTER = 0;
+
+var PED_COMPAT = {
+  '8x8poly':   {lr:false,intercom:false,label:'8×8 Poly'},
+  '14x14poly': {lr:false,intercom:true, label:'14×14 Poly'},
+  '20x14poly': {lr:true, intercom:true, label:'20×14 Poly'},
+  'custom':    {lr:true, intercom:true, label:'Custom'}
+};
+
+// Default data objects
+function defPos(){ return {reader:'standard',housing:'',housingPn:'',housingMfr:'',intercom:'none'}; }
+function defLane(){ return {dir:'',freeExit:false,pedestal:'no',pedType:'single',single:defPos(),lower:defPos(),upper:defPos()}; }
+function defLoc(){ return {id:GATE_LOC_COUNTER++,name:'',lanes:[defLane(),defLane()]}; }
+
+function findLoc(id){ return GATE_LOCATIONS.find(function(l){return l.id===id;}); }
+function addGateLocation(){ GATE_LOCATIONS.push(defLoc()); renderGateLocations(); }
+function removeGateLocation(id){ GATE_LOCATIONS=GATE_LOCATIONS.filter(function(l){return l.id!==id;}); renderGateLocations(); }
+function addLaneToLoc(id){ var l=findLoc(id); if(l) l.lanes.push(defLane()); renderGateLocations(); }
+function removeLane(id,li){ var l=findLoc(id); if(l&&l.lanes.length>1) l.lanes.splice(li,1); renderGateLocations(); }
+
+function getTotalGateCount(){
+  return GATE_LOCATIONS.reduce(function(a,loc){
+    return a+loc.lanes.filter(function(ln){return !ln.freeExit;}).length;
+  },0);
+}
+
+// ── DOM helpers ──────────────────────────────────────────────────────────────
+function el(tag,style,text){
+  var e=document.createElement(tag);
+  if(style) e.style.cssText=style;
+  if(text!=null) e.textContent=text;
+  return e;
+}
+function sel(opts,val,style,fn){
+  var s=document.createElement('select');
+  s.style.cssText=style||'width:100%;height:32px;padding:0 8px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px';
+  opts.forEach(function(o){
+    var op=document.createElement('option');
+    op.value=o.v; op.textContent=o.l;
+    if(o.v===val) op.selected=true;
+    s.appendChild(op);
+  });
+  s.addEventListener('change',fn);
+  return s;
+}
+function inp(val,placeholder,style,fn){
+  var i=document.createElement('input');
+  i.type='text'; i.value=val||''; i.placeholder=placeholder||'';
+  i.style.cssText=style||'width:100%;height:32px;padding:0 8px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px';
+  i.addEventListener('input',fn);
+  return i;
+}
+function lbl(text,style){
+  var d=el('div','font-size:11px;color:var(--text3);margin-bottom:3px'+(style?';'+style:''));
+  d.textContent=text; return d;
+}
+function fld(labelText,child){
+  var w=el('div','');
+  w.appendChild(lbl(labelText));
+  w.appendChild(child);
+  return w;
+}
+
+// ── Compat warning ────────────────────────────────────────────────────────────
+function compatEl(reader,housing,intercom){
+  if(!housing) return null;
+  var rule=PED_COMPAT[housing]; if(!rule) return null;
+  var isLR=(reader==='lr'), hasItc=(intercom!=='none'), warns=[];
+  if(isLR&&!rule.lr) warns.push('\u26a0\ufe0f LR reader does not fit in '+rule.label+' \u2014 use 20\xd714 or Custom.');
+  if(hasItc&&!rule.intercom) warns.push('\u26a0\ufe0f Intercom does not fit in '+rule.label+' \u2014 use 14\xd714, 20\xd714, or Custom.');
+  var div=el('div','margin-top:6px');
+  if(warns.length===0){
+    div.style.cssText='padding:5px 8px;background:var(--teal-dim);border:1px solid rgba(0,194,168,.3);border-radius:var(--radius);font-size:11px;color:var(--teal);margin-top:6px';
+    div.textContent='\u2713 Compatible';
+  } else {
+    warns.forEach(function(w){
+      var d=el('div','padding:5px 8px;background:var(--amber-dim);border:1px solid rgba(245,166,35,.3);border-radius:var(--radius);font-size:11px;color:#F5C842;margin-top:4px');
+      d.innerHTML=w; div.appendChild(d);
+    });
+  }
+  return div;
+}
+
+// ── Reader options ────────────────────────────────────────────────────────────
+var RDR_OPTS=[
+  {v:'standard',l:'Standard card reader \u2014 HID 40NKS-00-000000'},
+  {v:'keypad',  l:'Card reader with keypad'},
+  {v:'lr',      l:'Long range reader \u2014 HID MaxiProx 5375'}
+];
+var HSG_OPTS=[
+  {v:'',         l:'\u2014 Select Housing \u2014'},
+  {v:'8x8poly',  l:'8 x 8 Polycarbonate'},
+  {v:'14x14poly',l:'14 x 14 Polycarbonate'},
+  {v:'20x14poly',l:'20 x 14 Polycarbonate'},
+  {v:'custom',   l:'Custom Housing'}
+];
+var ITC_OPTS=[
+  {v:'none', l:'No intercom'},
+  {v:'audio',l:'Audio intercom'},
+  {v:'video',l:'Video intercom'}
+];
+
+// ── Build one reader-position block (single/lower/upper) ─────────────────────
+function buildPosBlock(pos,onAnyChange){
+  var wrap=el('div','background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;margin-top:6px');
+  var grid=el('div','display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px');
+
+  var rdrSel=sel(RDR_OPTS,pos.reader,null,function(){
+    pos.reader=this.value; refreshCompat(); if(onAnyChange)onAnyChange();
+  });
+  var hsgSel=sel(HSG_OPTS,pos.housing,null,function(){
+    pos.housing=this.value; customBlock.style.display=(pos.housing==='custom')?'block':'none';
+    refreshCompat(); if(onAnyChange)onAnyChange();
+  });
+  var itcSel=sel(ITC_OPTS,pos.intercom,null,function(){
+    pos.intercom=this.value; refreshCompat(); if(onAnyChange)onAnyChange();
+  });
+
+  grid.appendChild(fld('Reader',rdrSel));
+  grid.appendChild(fld('Housing',hsgSel));
+  grid.appendChild(fld('Intercom',itcSel));
+  wrap.appendChild(grid);
+
+  // Custom housing fields
+  var customBlock=el('div','display:'+(pos.housing==='custom'?'grid':'none')+';grid-template-columns:1fr 1fr;gap:8px;margin-top:6px');
+  var pnInp=inp(pos.housingPn,'Part #',null,function(){pos.housingPn=this.value;});
+  var mfrInp=inp(pos.housingMfr,'Manufacturer',null,function(){pos.housingMfr=this.value;});
+  customBlock.appendChild(fld('Custom part #',pnInp));
+  customBlock.appendChild(fld('Manufacturer',mfrInp));
+  wrap.appendChild(customBlock);
+
+  var compatDiv=el('div','');
+  wrap.appendChild(compatDiv);
+
+  function refreshCompat(){
+    compatDiv.innerHTML='';
+    var c=compatEl(pos.reader,pos.housing,pos.intercom);
+    if(c) compatDiv.appendChild(c);
+  }
+  refreshCompat();
+  return wrap;
+}
+
+// ── Build one lane block ──────────────────────────────────────────────────────
+function buildLaneEl(loc,laneIdx){
+  var lane=loc.lanes[laneIdx];
+  var wrap=el('div','background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px');
+
+  // Header: lane number + direction select
+  var hdr=el('div','display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px');
+  var numBadge=el('span','font-size:12px;font-weight:600;color:var(--text2)','Lane '+(laneIdx+1));
+  hdr.appendChild(numBadge);
+
+  var dirSel=sel(
+    [{v:'',l:'\u2014 Select lane direction \u2014'},{v:'entrance',l:'Entrance'},{v:'exit',l:'Exit'},{v:'both',l:'Entrance & Exit'}],
+    lane.dir,
+    'height:30px;padding:0 8px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px',
+    function(){ lane.dir=this.value; rebuildLaneBody(); }
+  );
+  hdr.appendChild(dirSel);
+
+  // Remove button (only if >2 lanes)
+  if(loc.lanes.length>2){
+    var delBtn=el('button','margin-left:auto;background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;padding:0 4px','×');
+    delBtn.title='Remove lane';
+    delBtn.addEventListener('click',function(){removeLane(loc.id,laneIdx);});
+    hdr.appendChild(delBtn);
+  }
+  wrap.appendChild(hdr);
+
+  // Body — rebuilt when direction changes
+  var body=el('div','');
+  wrap.appendChild(body);
+
+  function rebuildLaneBody(){
+    body.innerHTML='';
+    // EXIT lane: ask free exit or card access
+    if(lane.dir==='exit'||lane.dir==='both'){
+      var freeExitRow=el('div','display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px 10px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius)');
+      var feLabel=el('span','font-size:12px;color:var(--text2);font-weight:500','Exit type:');
+      freeExitRow.appendChild(feLabel);
+      [{v:'free',l:'Free Exit'},{v:'card',l:'Card Access'}].forEach(function(opt){
+        var active = (opt.v==='free' && lane.freeExit) || (opt.v==='card' && !lane.freeExit);
+        var btn=el('button',
+          'padding:4px 14px;border-radius:12px;font-size:12px;cursor:pointer;font-family:DM Sans,sans-serif;'
+          +'border:1px solid '+(active?'var(--teal)':'var(--border2)')+';'
+          +'background:'+(active?'var(--teal-dim)':'none')+';'
+          +'color:'+(active?'var(--teal)':'var(--text3)'),
+          opt.l
+        );
+        btn.addEventListener('click',function(){
+          lane.freeExit=(opt.v==='free');
+          rebuildLaneBody();
+        });
+        freeExitRow.appendChild(btn);
+      });
+      body.appendChild(freeExitRow);
+      // If free exit — done, no hardware needed
+      if(lane.freeExit){
+        var note=el('div','padding:8px 10px;background:var(--teal-dim);border:1px solid rgba(0,194,168,.3);border-radius:var(--radius);font-size:12px;color:var(--teal)');
+        note.textContent='\u2713 Free exit — no reader or lock hardware required for this lane.';
+        body.appendChild(note);
+        return;
+      }
+    }
+
+    // No direction selected yet — show placeholder
+    if(!lane.dir){
+      var ph=el('div','font-size:12px;color:var(--text3);padding:6px 0');
+      ph.textContent='Select a lane direction above to configure hardware.';
+      body.appendChild(ph);
+      return;
+    }
+
+    // Pedestal row
+    var pedRow=el('div','display:flex;align-items:center;gap:8px;margin-bottom:8px');
+    var pedLabel=el('span','font-size:12px;color:var(--text3)','Pedestal:');
+    pedRow.appendChild(pedLabel);
+    ['no','yes'].forEach(function(pv){
+      var active=lane.pedestal===pv;
+      var btn=el('button',
+        'padding:3px 12px;border-radius:12px;font-size:12px;cursor:pointer;font-family:DM Sans,sans-serif;'
+        +'border:1px solid '+(active?'var(--teal)':'var(--border2)')+';'
+        +'background:'+(active?'var(--teal-dim)':'none')+';'
+        +'color:'+(active?'var(--teal)':'var(--text3)'),
+        pv==='yes'?'Yes':'No'
+      );
+      btn.addEventListener('click',function(){ lane.pedestal=pv; rebuildLaneBody(); });
+      pedRow.appendChild(btn);
+    });
+    if(lane.pedestal==='yes'){
+      var ptSel=sel(
+        [{v:'single',l:'Single pedestal'},{v:'double',l:'Double pedestal'}],
+        lane.pedType,
+        'height:28px;padding:0 8px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:12px',
+        function(){ lane.pedType=this.value; rebuildLaneBody(); }
+      );
+      pedRow.appendChild(ptSel);
+    }
+    body.appendChild(pedRow);
+
+    // Reader config
+    if(lane.pedestal==='no'){
+      var rGrid=el('div','display:grid;grid-template-columns:1fr 1fr;gap:8px');
+      var rSel=sel(RDR_OPTS,lane.single.reader,null,function(){lane.single.reader=this.value;});
+      var iSel=sel(ITC_OPTS,lane.single.intercom,null,function(){lane.single.intercom=this.value;});
+      rGrid.appendChild(fld('Reader type',rSel));
+      rGrid.appendChild(fld('Intercom',iSel));
+      body.appendChild(rGrid);
+    } else if(lane.pedType==='single'){
+      var posHdr=el('div','font-size:11px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px','Single pedestal');
+      body.appendChild(posHdr);
+      body.appendChild(buildPosBlock(lane.single));
+    } else {
+      var loHdr=el('div','font-size:11px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 2px','Lower position');
+      body.appendChild(loHdr);
+      body.appendChild(buildPosBlock(lane.lower));
+      var upHdr=el('div','font-size:11px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin:8px 0 2px','Upper position');
+      body.appendChild(upHdr);
+      body.appendChild(buildPosBlock(lane.upper));
+    }
+  }
+
+  rebuildLaneBody();
+  return wrap;
+}
+
+// ── Render all gate locations ─────────────────────────────────────────────────
+function renderGateLocations(){
+  var container=document.getElementById('gate-locations-list');
+  if(!container) return;
+  container.innerHTML='';
+
+  GATE_LOCATIONS.forEach(function(loc,li){
+    var card=el('div','background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px');
+
+    // Location header
+    var locHdr=el('div','display:flex;align-items:center;gap:10px;margin-bottom:12px');
+    var badge=el('div','width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0',(li+1)+'');
+    var nameInp=inp(loc.name,'Location name — e.g. Main Entrance, Parking Garage B',
+      'flex:1;height:32px;padding:0 10px;background:var(--input);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:DM Sans,sans-serif;font-size:13px',
+      function(){loc.name=this.value;}
+    );
+    var remBtn=el('button','background:none;border:1px solid var(--border2);border-radius:var(--radius);padding:4px 10px;font-size:12px;color:var(--text3);cursor:pointer;font-family:DM Sans,sans-serif','Remove');
+    remBtn.addEventListener('click',function(){removeGateLocation(loc.id);});
+    locHdr.appendChild(badge); locHdr.appendChild(nameInp); locHdr.appendChild(remBtn);
+    card.appendChild(locHdr);
+
+    // Lanes
+    loc.lanes.forEach(function(lane,li2){ card.appendChild(buildLaneEl(loc,li2)); });
+
+    // Add lane button
+    var addLaneBtn=el('button','width:100%;background:none;border:1px dashed var(--border2);border-radius:var(--radius);padding:6px;font-size:12px;color:var(--text3);cursor:pointer;font-family:DM Sans,sans-serif;margin-top:4px','+ Add lane at this location');
+    addLaneBtn.addEventListener('click',function(){addLaneToLoc(loc.id);});
+    card.appendChild(addLaneBtn);
+    container.appendChild(card);
+  });
+}
+
+// ── Gate BOM builder ──────────────────────────────────────────────────────────
+var GATE_RDR_MAP={standard:{pn:'HID 40NKS-00-000000',desc:'HID Standard Card Reader'},keypad:{pn:'HID 40NKS-00-000000',desc:'HID Card Reader with Keypad'},lr:{pn:'HID MaxiProx 5375',desc:'HID MaxiProx 5375 Long Range Reader'}};
+var GATE_ITC_MAP={audio:{pn:'—',desc:'Audio Intercom'},video:{pn:'—',desc:'Video Intercom'}};
+var GATE_HSG_MAP={'8x8poly':{pn:'—',desc:'Pedestal Housing — 8" \xd7 8" Polycarbonate'},'14x14poly':{pn:'—',desc:'Pedestal Housing — 14" \xd7 14" Polycarbonate'},'20x14poly':{pn:'—',desc:'Pedestal Housing — 20" \xd7 14" Polycarbonate'}};
+
+function buildGateBOMItems(){
+  var items=[];
+  GATE_LOCATIONS.forEach(function(loc){
+    var locName=loc.name||('Gate Location '+(GATE_LOCATIONS.indexOf(loc)+1));
+    loc.lanes.forEach(function(lane,li){
+      var laneLabel=locName+(loc.lanes.length>1?' \u2014 Lane '+(li+1):'');
+      var ltMap={entrance:'Entrance',exit:'Exit',both:'Entrance & Exit'};
+      var laneNote=laneLabel+(lane.dir?' ('+ltMap[lane.dir]+')':'');
+      // Skip free exit lanes — no hardware
+      if(lane.freeExit){ items.push({pn:'\u2014',desc:'Free Exit \u2014 no hardware',note:laneNote,src:'\u2014',qty:1}); return; }
+      if(!lane.dir) return;
+      function posItems(pos,posNote){
+        var r=GATE_RDR_MAP[pos.reader]||GATE_RDR_MAP.standard;
+        items.push({pn:r.pn,desc:r.desc,note:posNote,src:'ADI',qty:1});
+        if(pos.intercom!=='none'){var ic=GATE_ITC_MAP[pos.intercom];if(ic)items.push({pn:ic.pn,desc:ic.desc,note:posNote,src:'ADI',qty:1});}
+        if(pos.housing){
+          var h=pos.housing==='custom'?{pn:pos.housingPn||'CUSTOM-PN',desc:'Pedestal Housing \u2014 Custom ('+(pos.housingMfr||'TBD')+')'}:GATE_HSG_MAP[pos.housing];
+          if(h)items.push({pn:h.pn,desc:h.desc,note:posNote+' housing',src:'ADI',qty:1});
+        }
+      }
+      if(lane.pedestal==='no'){
+        var r=GATE_RDR_MAP[lane.single.reader]||GATE_RDR_MAP.standard;
+        items.push({pn:r.pn,desc:r.desc,note:laneNote,src:'ADI',qty:1});
+        if(lane.single.intercom!=='none'){var ic=GATE_ITC_MAP[lane.single.intercom];if(ic)items.push({pn:ic.pn,desc:ic.desc,note:laneNote,src:'ADI',qty:1});}
+      } else if(lane.pedType==='single'){
+        posItems(lane.single,laneNote+' \u2014 Single Pedestal');
+        items.push({pn:'\u2014',desc:'Single Vehicle Pedestal',note:laneNote,src:'ADI',qty:1});
+      } else {
+        posItems(lane.lower,laneNote+' \u2014 Lower');
+        posItems(lane.upper,laneNote+' \u2014 Upper');
+        items.push({pn:'\u2014',desc:'Double Vehicle Pedestal',note:laneNote,src:'ADI',qty:1});
+      }
+    });
+  });
+  return items;
+}
+
+// Legacy stubs
+function showPedestalType(){}
+function showIntercomType(){}
+function onPedTypeChange(){}
+function onPedHousingChange(){}
+function checkPedCompat(){}
+function buildGateLaneRows(){}
+function getGateReaderBOMItems(){return [];}
+function getGateHousingBOMItem(){return null;}
+function getPedPositionBOMItems(){return [];}
 
 </script>
 </body>
